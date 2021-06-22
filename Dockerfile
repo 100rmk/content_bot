@@ -4,6 +4,14 @@ LABEL maintainer="Dmitrii Nesvit. mail: hinesqui@gmail.com"
 
 WORKDIR /usr/src/app
 
+ENV API_TOKEN ''
+ENV WEBHOOK_URL ''
+ENV WEBAPP_HOST ''
+ENV WEBAPP_PORT ''
+ENV RECIPIENT_CHAT_ID ''
+ENV ACESS_ID ''
+ENV MONGODB_URL ''
+
 COPY . .
 
 RUN apk add --update --no-cache \
