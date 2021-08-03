@@ -4,26 +4,25 @@ from aiogram.contrib.middlewares.logging import LoggingMiddleware
 from aiogram.utils.executor import start_webhook
 from etc.config import *
 from misc import dp, bot
-from middlewares import AccessMiddleware
+
+from schedule_background import run_continuously
 
 import handlers
 
 logging.basicConfig(level=logging.INFO)
-
-dp.middleware.setup(AccessMiddleware(ACESS_ID))
+stop_run_continuously = None
 
 
 async def on_startup(dp):
+    global stop_run_continuously
     await bot.set_webhook(WEBHOOK_URL)
-    # insert code here to run it after start
+    stop_run_continuously = run_continuously(interval=60)
 
 
 async def on_shutdown(dp):
+    global stop_run_continuously
     logging.warning('Shutting down..')
-
-    # insert code here to run it before shutdown
-
-    # Remove webhook (not acceptable in some cases)
+    stop_run_continuously.set()
     await bot.delete_webhook()
 
     # Close DB connection (if used)

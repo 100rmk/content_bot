@@ -1,9 +1,8 @@
-etc/config-test.py
+etc/configtest.py
 venv
 .idea
 __pycache__/
 test.py
 tmp/.
-db
 *.DS_store
 tmp/*
