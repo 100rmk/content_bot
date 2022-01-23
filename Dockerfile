@@ -1,4 +1,4 @@
-FROM python:alpine
+FROM python:3.9.6-alpine
 
 LABEL maintainer="Dmitrii Nesvit. mail: hinesqui@gmail.com"
 

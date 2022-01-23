@@ -1,5 +1,5 @@
 - name: Recreate
-  hosts: all
+  hosts: localhost
   any_errors_fatal: true
   tasks:
     - name: Remove
@@ -34,13 +34,13 @@
             network_mode: host
             env:
               API_TOKEN: "{{ token }}"
-              ADMIN_ID: "{{ a_id }}"
-              CHANNEL_ID: "{{ c_id }}"
-              SUGG_ID: "{{ s_id }}"
-              MONGO_URL: "{{ m_url }}"
-              WEBAPP_HOST: "{{ w_host }}"
-              WEBAPP_PORT: "{{ w_port }}"
-              WEBHOOK_URL: "{{ w_url }}"
+              ADMIN_ID: "{{ admin_id }}"
+              CHANNEL_ID: "{{ channel_id }}"
+              SUGG_ID: "{{ sugg_id }}"
+              MONGO_URL: "{{ mongo }}"
+              WEBAPP_HOST: "{{ app_host }}"
+              WEBAPP_PORT: "{{ app_port }}"
+              WEBHOOK_URL: "{{ webhook }}"
 
       become: yes
       become_user: root
