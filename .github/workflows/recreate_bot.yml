@@ -2,7 +2,7 @@ name: recreate bot
 on: [workflow_dispatch]
 jobs:
   build:
-    name: Build
+    name: Copy
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
@@ -13,7 +13,7 @@ jobs:
         username: ${{ secrets.HOST_USERNAME }}
         password: ${{ secrets.HOST_PASSWORD }}
         port: 22
-        source: "bot.deploy.yml,~"
+        source: "bot.deploy.yml,~/"
         target: "test"
 
     - name: executing remote ssh commands using password
