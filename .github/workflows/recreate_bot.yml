@@ -13,8 +13,8 @@ jobs:
         username: ${{ secrets.HOST_USERNAME }}
         password: ${{ secrets.HOST_PASSWORD }}
         port: 22
-        source: "bot.deploy.yml,~/"
-        target: "test"
+        source: "bot.deploy.yml"
+        target: "~/playbook"
 
     - name: executing remote ssh commands using password
       uses: appleboy/ssh-action@master
