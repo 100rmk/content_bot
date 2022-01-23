@@ -12,9 +12,8 @@ WEBAPP_PORT = os.getenv('WEBAPP_PORT')
 POST_COUNT_IN_WEEK = 25
 sugg_post_description = 'Прислали через @VidMem_bot'
 
-id_predlojki = 1
-my_group = 1337
-RECIPIENT_CHAT_ID = my_group
-ADMINS = (1337,)  # tuple of admins id
+id_predlojki = os.getenv('SUGG_ID')
+RECIPIENT_CHAT_ID = os.getenv('CHANNEL_ID')
+ADMINS = (int(os.getenv('ADMIN_ID')),)  # tuple of admins id
 
 MONGODB_URL = os.getenv('MONGODB_URL')

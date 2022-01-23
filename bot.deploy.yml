@@ -1,0 +1,46 @@
+- name: Recreate
+  hosts: all
+  any_errors_fatal: true
+  tasks:
+    - name: Remove
+      block:
+        - name: Remove docker container
+          docker_container:
+            name: 'vidmem_bot'
+            state: absent
+
+        - name: Remove docker image
+          docker_image:
+            name: '{{username}}/vidmem_bot:latest'
+            state: absent
+      become: yes
+      become_user: root
+
+    - name: Install
+      block:
+        - name: Docker login
+          docker_login:
+            email: '{{email}}'
+            username: '{{username}}'
+            password: '{{password}}'
+
+        - name: Запуск контейнера
+          docker_container:
+            name: 'vidmem_bot'
+            image: '{{username}}/vidmem_bot:latest'
+            restart_policy: unless-stopped
+            state: started
+            pull: yes
+            network_mode: host
+            env:
+              API_TOKEN: "{{ token }}"
+              ADMIN_ID: "{{ a_id }}"
+              CHANNEL_ID: "{{ c_id }}"
+              SUGG_ID: "{{ s_id }}"
+              MONGO_URL: "{{ m_url }}"
+              WEBAPP_HOST: "{{ w_host }}"
+              WEBAPP_PORT: "{{ w_port }}"
+              WEBHOOK_URL: "{{ w_url }}"
+
+      become: yes
+      become_user: root
