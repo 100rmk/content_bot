@@ -23,7 +23,8 @@ jobs:
         username: ${{ secrets.HOST_USERNAME }}
         password: ${{ secrets.HOST_PASSWORD }}
         port: 22
-        script: ansible-playbook ~/playbooks/bot.deploy.yml --extra-vars "email=${{ EMAIL }} password=${{ DOCKER_PASSWORD }} \
-        username=${{ DOCKER_USERNAME }} token=${{ BOT_TOKEN }} admin_id=${{ ADMIN_ID }} channel_id=${{ CHANNEL_ID }} \
-        sugg_id=${{ SUGG_ID }} mongo=${{ MONGO_URL }} app_host=${{ WEBAPP_HOST }} app_port=${{ WEBAPP_PORT }} \
+        script: > 
+        ansible-playbook ~/playbooks/bot.deploy.yml --extra-vars "email=${{ EMAIL }} password=${{ DOCKER_PASSWORD }}
+        username=${{ DOCKER_USERNAME }} token=${{ BOT_TOKEN }} admin_id=${{ ADMIN_ID }} channel_id=${{ CHANNEL_ID }}
+        sugg_id=${{ SUGG_ID }} mongo=${{ MONGO_URL }} app_host=${{ WEBAPP_HOST }} app_port=${{ WEBAPP_PORT }}
         webhook=${{ WEBHOOK_URL }}"
