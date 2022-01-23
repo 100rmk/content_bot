@@ -7,13 +7,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageNotModified
 
 from db import db
-from etc.config import RECIPIENT_CHAT_ID, id_predlojki
+from etc.config import RECIPIENT_CHAT_ID, suggest_id, sugg_post_description
 from handlers.content import inline_reaction
 from misc import dp, bot
+from other import text
 from utils import video_convert, img_convert
 
 cache_time = 8
-sugg_caption = 'Прислали через @VidMem_bot'
 
 
 # reaction: like
@@ -21,69 +21,90 @@ sugg_caption = 'Прислали через @VidMem_bot'
 async def callback_liking(callback_query: types.CallbackQuery):
     message_id = callback_query.message.message_id
     user_id = callback_query.from_user.id
-    dislikes_arr, dislikes_count, likes_arr, likes_count = await get_db_params(message_id)
+    try:
+        dislikes_arr, dislikes_count, likes_arr, likes_count = db.get_db_params(message_id)
+    except Exception:
+        return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.LIKES_TIMEOUT)
+
     like_btn = None
 
+    # Если пользователь лайкнувший пост повторно нажал на лайк
     if user_id in likes_arr:
         db.add_user_reaction(message_id, user_id, action='pull', reaction='likes')
         likes_count = likes_count - 1
-        like_btn = InlineKeyboardButton(f'👍{likes_count}', callback_data='up')
+        like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
+        await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                        text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["fail"]}')
     elif user_id in dislikes_arr:
         db.add_user_reaction(message_id, user_id, action='pull', reaction='dislikes')
         dislikes_count = dislikes_count - 1
+        await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                        text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["success"]}')
 
     if like_btn is not None:
         inline_kb_full = InlineKeyboardMarkup(row_width=2)
-        dislike_btn = InlineKeyboardButton(f'👎{dislikes_count}', callback_data='down')
+        dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
         inline_kb_full.add(like_btn, dislike_btn)
         await edit_reply_markup(inline_kb_full, message_id)
 
-        return AnswerCallbackQuery(callback_query.id, text='Like снят', cache_time=cache_time)
+        return AnswerCallbackQuery(callback_query.id, cache_time=cache_time,
+                                   text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["fail"]}')
 
     db.add_user_reaction(message_id, user_id, action='push', reaction='likes')
 
+    await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                    text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["success"]}')
     inline_kb_full = InlineKeyboardMarkup(row_width=2)
-    like_btn = InlineKeyboardButton(f'👍{likes_count + 1}', callback_data='up')
-    dislike_btn = InlineKeyboardButton(f'👎{dislikes_count}', callback_data='down')
+    like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count + 1}', callback_data='up')
+    dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
     inline_kb_full.add(like_btn, dislike_btn)
     await edit_reply_markup(inline_kb_full, message_id)
 
-    return AnswerCallbackQuery(callback_query.id, text='Like залетел', cache_time=cache_time)
+    return
 
 
 # reaction: dislike
-@dp.callback_query_handler(text='down')
+@dp.callback_query_handler(text='down', run_task=True)
 async def callback_disliking(callback_query: types.CallbackQuery):
     message_id = callback_query.message.message_id
     user_id = callback_query.from_user.id
-    dislikes_arr, dislikes_count, likes_arr, likes_count = await get_db_params(message_id)
+    try:
+        dislikes_arr, dislikes_count, likes_arr, likes_count = db.get_db_params(message_id)
+    except Exception:
+        return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.LIKES_TIMEOUT)
     dislike_btn = None
 
     if user_id in likes_arr:
         db.add_user_reaction(message_id, user_id, action='pull', reaction='likes')
         likes_count = likes_count - 1
+        await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                        text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["success"]}')
     elif user_id in dislikes_arr:
         db.add_user_reaction(message_id, user_id, action='pull', reaction='dislikes')
         dislikes_count = dislikes_count - 1
-        dislike_btn = InlineKeyboardButton(f'👎{dislikes_count}', callback_data='down')
+        dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+        await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                        text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["fail"]}')
 
     if dislike_btn is not None:
         inline_kb_full = InlineKeyboardMarkup(row_width=2)
-        like_btn = InlineKeyboardButton(f'👍{likes_count}', callback_data='up')
+        like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
         inline_kb_full.add(like_btn, dislike_btn)
         await edit_reply_markup(inline_kb_full, message_id)
 
-        return AnswerCallbackQuery(callback_query.id, text='Dislike снят', cache_time=cache_time)
+        return AnswerCallbackQuery(callback_query.id, cache_time=cache_time,
+                                   text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["fail"]}')
 
     db.add_user_reaction(message_id, user_id, action='push', reaction='dislikes')
-
+    await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
+                                    text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["success"]}')
     inline_kb_full = InlineKeyboardMarkup(row_width=2)
-    like_btn = InlineKeyboardButton(f'👍{likes_count}', callback_data='up')
-    dislike_btn = InlineKeyboardButton(f'👎{dislikes_count + 1}', callback_data='down')
+    like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
+    dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count + 1}', callback_data='down')
     inline_kb_full.add(like_btn, dislike_btn)
     await edit_reply_markup(inline_kb_full, message_id)
 
-    return AnswerCallbackQuery(callback_query.id, text='Dislike залетел', cache_time=cache_time)
+    return
 
 
 # reaction: ban user
@@ -93,7 +114,7 @@ async def ban_user(callback_query: types.CallbackQuery):
     username = meta[0]
     user_id = int(meta[1])
     db.ban_user(user_id)
-    return AnswerCallbackQuery(callback_query.id, text=f'Пользователь {username} забанен')
+    return AnswerCallbackQuery(callback_query.id, text=f'{text.USER_BANNED} {username}')
 
 
 # reaction: remove post
@@ -101,35 +122,35 @@ async def ban_user(callback_query: types.CallbackQuery):
 async def remove_sugg_post(callback_query: types.CallbackQuery):
     message_id = callback_query.message.message_id
     try:
-        await bot.delete_message(id_predlojki, message_id)
+        await bot.delete_message(suggest_id, message_id)
     except MessageCantBeDeleted as e:
-        return AnswerCallbackQuery(callback_query.id, text='Нельзя удалить, удалите руками')
-    return AnswerCallbackQuery(callback_query.id, text='Удалено')
+        return AnswerCallbackQuery(callback_query.id, text=text.DELETE_FAIL)
+    return AnswerCallbackQuery(callback_query.id, text=text.DELETED)
 
 
 # reaction: post sugg content
-@dp.callback_query_handler(text='post')
+@dp.callback_query_handler(text='post', run_task=True)  # TODO: подумать над рефакторингом
 async def post_sugg_content(callback_query: types.CallbackQuery):
     message = callback_query.message
     try:
         if message.photo:
             img = message.photo
             file = await bot.get_file(img[-1].file_id)
-
-            await bot.download_file(file.file_path, destination=f'tmp/temp_image')
+            await bot.answer_callback_query(callback_query.id, text=text.POST_SOON)
+            file_link = bot.get_file_url(file.file_path)
             tmp_img = 'tmp/tmp_image_out.jpg'
             if os.path.isfile(tmp_img):
                 os.remove(tmp_img)
 
             try:
-                await img_convert(tmp_img)
+                await img_convert(file_link, tmp_img)
             except Exception as e:
                 logging.exception('ffmpeg error')
                 return
 
             tg_upload = types.InputFile(tmp_img)
 
-            response = await bot.send_photo(RECIPIENT_CHAT_ID, tg_upload, caption=sugg_caption,
+            response = await bot.send_photo(RECIPIENT_CHAT_ID, tg_upload, caption=sugg_post_description,
                                             reply_markup=inline_reaction)
             meta = message.caption.split('|')
             username = meta[0]
@@ -139,21 +160,21 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
         if message.video:
             video = message.video
             file = await bot.get_file(video.file_id)
-
-            await bot.download_file(file.file_path, destination=f'tmp/temp_video')
+            await bot.answer_callback_query(callback_query.id, text=text.POST_SOON)
+            file_link = bot.get_file_url(file.file_path)
             tmp_vid = 'tmp/tmp_video_out.mp4'
             if os.path.isfile(tmp_vid):
                 os.remove(tmp_vid)
 
             try:
-                await video_convert(tmp_vid)
+                await video_convert(file_link, tmp_vid)
             except Exception as e:
                 logging.exception('ffmpeg error')
                 return
 
             tg_upload = types.InputFile(tmp_vid)
 
-            response = await bot.send_video(RECIPIENT_CHAT_ID, tg_upload, caption=sugg_caption,
+            response = await bot.send_video(RECIPIENT_CHAT_ID, tg_upload, caption=sugg_post_description,
                                             reply_markup=inline_reaction)
             meta = message.caption.split('|')
             username = meta[0]
@@ -161,22 +182,13 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
             db.insert_post(message, response.message_id, username=username, user_id=user_id)
 
         await remove_sugg_post(callback_query)
-        return AnswerCallbackQuery(callback_query.id, text='Мем запощен')
     except Exception as e:
-        return AnswerCallbackQuery(callback_query.id, text='Мем нихуя не запощен')
+        return AnswerCallbackQuery(callback_query.id, text=text.POST_FAIL)
 
 
+# Необходимая процедура связанная с особенностью АПИ телеграма
 async def edit_reply_markup(inline_kb_full, message_id):
     try:
         await bot.edit_message_reply_markup(RECIPIENT_CHAT_ID, message_id, reply_markup=inline_kb_full)
     except MessageNotModified:
         pass
-
-
-async def get_db_params(message_id):
-    response = db.get_post(message_id)
-    likes_arr = response.get('likes')
-    dislikes_arr = response.get('dislikes')
-    likes_count = len(likes_arr)
-    dislikes_count = len(dislikes_arr)
-    return dislikes_arr, dislikes_count, likes_arr, likes_count

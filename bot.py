@@ -22,7 +22,7 @@ async def on_startup(dp):
 async def on_shutdown(dp):
     global stop_run_continuously
     logging.warning('Shutting down..')
-    stop_run_continuously.set()
+    stop_run_continuously.clear()
     await bot.delete_webhook()
 
     # Close DB connection (if used)

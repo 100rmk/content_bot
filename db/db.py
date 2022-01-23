@@ -2,7 +2,6 @@ from aiogram import types
 from datetime import datetime
 from misc import db_mongo
 from etc.config import POST_COUNT_IN_WEEK
-import json
 
 _db_posts = db_mongo.tg_memvid.posts
 _db_suggest = db_mongo.tg_memvid.users
@@ -66,17 +65,10 @@ def reset_post_count():
     _db_suggest.update_many({}, {'$set': {'sugg_post_count': POST_COUNT_IN_WEEK}})
 
 
-# govnokod, ne smotrite pojaluista i nikogda tak ne delaite
-def top_10_month(month):
-    posts_list = _db_posts.find({
-        '$and': [
-            {'$expr': {'$eq': [{'$month': '$timestamp'}, month]}},
-            {'user': {'$regex': '^@.*'}},
-        ]})
-    message_id_likes = {}
-    for post in list(posts_list):
-        message_id_likes[str(post['_id']) + post['user'] + '@' + str(len(post['dislikes']))] = len(post['likes'])
-
-    sorted_posts_rating = sorted(message_id_likes.items(), key=lambda x: x[1], reverse=True)
-    result = json.dumps(dict(sorted_posts_rating[:10]), indent=2)
-    return result
+def get_db_params(message_id):
+    response = get_post(message_id)
+    likes_arr = response.get('likes')
+    dislikes_arr = response.get('dislikes')
+    likes_count = len(likes_arr)
+    dislikes_count = len(dislikes_arr)
+    return dislikes_arr, dislikes_count, likes_arr, likes_count
