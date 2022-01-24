@@ -14,9 +14,12 @@ nosetests.xml
 coverage.xml
 *,cover
 *.log
-.git
+.git*
 .mypy_cache
 .pytest_cache
 .hypothesis
 etc/configtest.py
-
+venv
+requirements.txt
+Dockerfile
+bot.deploy.yml
