@@ -7,7 +7,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageNotModified
 
 from db import db
-from etc.config import RECIPIENT_CHAT_ID, suggest_id, sugg_post_description
+from etc.config import RECIPIENT_CHAT_ID, SUGGEST_ID, sugg_post_description
 from handlers.content import inline_reaction
 from misc import dp, bot
 from other import text
@@ -122,7 +122,7 @@ async def ban_user(callback_query: types.CallbackQuery):
 async def remove_sugg_post(callback_query: types.CallbackQuery):
     message_id = callback_query.message.message_id
     try:
-        await bot.delete_message(suggest_id, message_id)
+        await bot.delete_message(SUGGEST_ID, message_id)
     except MessageCantBeDeleted as e:
         return AnswerCallbackQuery(callback_query.id, text=text.DELETE_FAIL)
     return AnswerCallbackQuery(callback_query.id, text=text.DELETED)

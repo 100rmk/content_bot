@@ -10,7 +10,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from db import db
 from db.fsm import GroupState
-from etc.config import RECIPIENT_CHAT_ID, suggest_id
+from etc.config import RECIPIENT_CHAT_ID, SUGGEST_ID
 from filters import AdminFilter, NicknameFilter
 from misc import dp, bot
 from utils import *
@@ -41,7 +41,7 @@ async def suggest_posts(message: types.Message):
         return SendMessage(message.chat.id, text.MESSAGE_FOR_BANNED_USER)
     if posts_count == 0:
         return SendMessage(message.chat.id, text.LIMIT_EXCEEDED)
-    await bot.copy_message(chat_id=suggest_id, from_chat_id=message.chat.id, message_id=message.message_id,
+    await bot.copy_message(chat_id=SUGGEST_ID, from_chat_id=message.chat.id, message_id=message.message_id,
                            disable_notification=True, caption=f'@{message.from_user.username}|{message.from_user.id}',
                            reply_markup=inline_moderation)
     db.reduce_post_count(user_id=message.from_user.id)

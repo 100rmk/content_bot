@@ -12,7 +12,7 @@ WEBAPP_PORT = os.getenv('WEBAPP_PORT')
 POST_COUNT_IN_WEEK = 25
 sugg_post_description = 'Прислали через @VidMem_bot'
 
-id_predlojki = os.getenv('SUGG_ID')
+SUGGEST_ID = os.getenv('SUGG_ID')
 RECIPIENT_CHAT_ID = os.getenv('CHANNEL_ID')
 ADMINS = (int(os.getenv('ADMIN_ID')),)  # tuple of admins id
 
