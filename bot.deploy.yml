@@ -37,7 +37,7 @@
               ADMIN_ID: "{{ admin_id }}"
               CHANNEL_ID: "{{ channel_id }}"
               SUGG_ID: "{{ sugg_id }}"
-              MONGO_URL: "{{ mongo }}"
+              MONGODB_URL: "{{ mongo }}"
               WEBAPP_HOST: "{{ app_host }}"
               WEBAPP_PORT: "{{ app_port }}"
               WEBHOOK_URL: "{{ webhook }}"
