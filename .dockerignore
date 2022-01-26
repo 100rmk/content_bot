@@ -20,6 +20,5 @@ coverage.xml
 .hypothesis
 etc/configtest.py
 venv
-requirements.txt
 Dockerfile
 bot.deploy.yml

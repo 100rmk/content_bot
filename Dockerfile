@@ -20,7 +20,7 @@ RUN apk add --update --no-cache \
         rtmpdump-dev x264-dev x265-dev xvidcore-dev libass-dev libwebp-dev \
         libvorbis-dev libogg-dev libtheora-dev libvpx-dev \
     # build and install ffmpeg
-    && FFMPEG_VER=4.4 \
+    && FFMPEG_VER=5.0 \
     && pip install --no-cache-dir -r requirements.txt \
     && curl -s http://ffmpeg.org/releases/ffmpeg-${FFMPEG_VER}.tar.gz | tar zxvf - -C . \
     && cd ffmpeg-${FFMPEG_VER} \
