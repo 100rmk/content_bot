@@ -27,7 +27,7 @@ RUN apk add --update --no-cache \
     && ./configure \
         --disable-debug --enable-version3 --enable-small --enable-gpl \
         --enable-nonfree --enable-postproc --enable-openssl \
-        --enable-avresample --enable-libfreetype --enable-libmp3lame \
+        --enable-libfreetype --enable-libmp3lame \
         --enable-libx264 --enable-libx265 --enable-libopus --enable-libass \
         --enable-libwebp --enable-librtmp --enable-libtheora \
         --enable-libvorbis --enable-libvpx --enable-libxvid \
