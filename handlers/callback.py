@@ -148,7 +148,7 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
                 os.remove(tmp_img)
 
             try:
-                await img_convert(file_link, tmp_img)
+                img_convert(file_link, tmp_img)
             except Exception as e:
                 logging.exception('ffmpeg error')
                 return
@@ -172,7 +172,7 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
                 os.remove(tmp_vid)
 
             try:
-                await video_convert(file_link, tmp_vid)
+                video_convert(file_link, tmp_vid)
             except Exception as e:
                 logging.exception('ffmpeg error')
                 return

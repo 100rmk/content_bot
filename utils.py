@@ -2,7 +2,7 @@ import logging
 import ffmpeg
 
 
-async def video_convert(link, tmp_file):
+def video_convert(link, tmp_file):
     logging.info('ffmpeg starts converting video')
     in_file = ffmpeg.input(link)
 
@@ -25,7 +25,7 @@ async def video_convert(link, tmp_file):
     logging.info('video  converting  complete')
 
 
-async def img_convert(link, tmp_file):
+def img_convert(link, tmp_file):
     logging.info('ffmpeg starts converting photo')
     in_file = ffmpeg.input(link)
     (

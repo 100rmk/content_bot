@@ -48,9 +48,9 @@ async def suggest_posts(message: types.Message):
     return SendMessage(message.chat.id, f'{text.POST_ACCEPTED} {posts_count - 1}')
 
 
-@dp.message_handler(is_admin=True, content_types=types.ContentType.VIDEO, run_task=True)
+@dp.message_handler(is_admin=True, content_types=[types.ContentType.VIDEO, types.ContentType.ANIMATION], run_task=True)
 async def video_post(message: types.Message):
-    video = message.video
+    video = message.video if message.video else message.animation
     try:
         wait_message = await bot.send_message(message.chat.id, text.PROCESSING)
 
@@ -62,7 +62,7 @@ async def video_post(message: types.Message):
             os.remove(tmp_vid)
 
         try:
-            await video_convert(file_link, tmp_vid)
+            video_convert(file_link, tmp_vid)
         except Exception as e:
             await bot.delete_message(message.chat.id, wait_message.message_id)
             logging.exception('ffmpeg error')
@@ -91,7 +91,7 @@ async def img_post(message: types.Message):
             os.remove(tmp_img)
 
         try:
-            await img_convert(file_link, tmp_img)
+            img_convert(file_link, tmp_img)
         except Exception as e:
             await bot.delete_message(message.chat.id, wait_message.message_id)
             logging.exception('ffmpeg error')
