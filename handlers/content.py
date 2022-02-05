@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import os
+import re
 from datetime import datetime
 
+from instaloader import Post
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import SendMessage
@@ -11,8 +13,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from db import db
 from db.fsm import GroupState
 from etc.config import RECIPIENT_CHAT_ID, SUGGEST_ID
-from filters import AdminFilter, NicknameFilter
-from misc import dp, bot
+from filters import AdminFilter, NicknameFilter, ModerFilter
+from misc import dp, bot, inst_loader
 from utils import *
 from other import text
 
@@ -29,6 +31,7 @@ inline_moderation.add(post_btn).add(remove_btn, ban_btn)
 
 dp.filters_factory.bind(AdminFilter)
 dp.filters_factory.bind(NicknameFilter)
+dp.filters_factory.bind(ModerFilter)
 
 
 # Предложка
@@ -132,3 +135,35 @@ async def ad_post(message: types.Message, state: FSMContext):
     except Exception as e:
         await state.finish()
         return SendMessage(message.chat.id, str(e))
+
+
+@dp.message_handler(is_moder=True, content_types=types.ContentType.TEXT, run_task=True,
+                    regexp='(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)')
+async def instagram_post(message: types.Message):
+    try:
+        code = re.search('^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com.*\/*\/)([\d\w\-_]+)(?:\/)?(\?.*)?$',
+                         message.text).group(1)
+        post = Post.from_shortcode(inst_loader.context, code)
+
+        count = 0
+        is_video_tuple = post.get_is_videos()
+        if len(is_video_tuple) > 1:
+            for sidecar in post.get_sidecar_nodes():
+                ds = get_content_bytes(sidecar.video_url if is_video_tuple[count] else sidecar.display_url)
+                tg_upload = types.InputFile(ds)
+                if is_video_tuple[count]:
+                    await bot.send_video(message.chat.id, tg_upload)
+                else:
+                    await bot.send_photo(message.chat.id, tg_upload)
+
+                count += 1
+        elif len(is_video_tuple) == 1:
+            ds = get_content_bytes(post.video_url if post.is_video else post.url)
+            tg_upload = types.InputFile(ds)
+            if post.is_video:
+                await bot.send_video(message.chat.id, tg_upload)
+            else:
+                await bot.send_photo(message.chat.id, tg_upload)
+
+    except Exception as e:
+        return SendMessage(message.chat.id, f'Не получилось \n {str(e)}')

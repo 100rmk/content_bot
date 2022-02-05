@@ -41,6 +41,8 @@
               WEBAPP_HOST: "{{ app_host }}"
               WEBAPP_PORT: "{{ app_port }}"
               WEBHOOK_URL: "{{ webhook }}"
+              INST_LOGIN: "{{ inst_login }}"
+              INST_PASS: "{{ inst_pass }}"
 
       become: yes
       become_user: root

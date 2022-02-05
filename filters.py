@@ -1,7 +1,7 @@
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
 
-from etc.config import ADMINS
+from etc.config import ADMINS, MODERS
 
 
 class AdminFilter(BoundFilter):
@@ -22,3 +22,13 @@ class NicknameFilter(BoundFilter):
 
     async def check(self, message: types.Message):
         return (message.from_user.username != None) == self.has_nickname
+
+
+class ModerFilter(BoundFilter):
+    key = 'is_moder'
+
+    def __init__(self, is_moder):
+        self.is_moder = is_moder
+
+    async def check(self, message: types.Message):
+        return (message.from_user.id in MODERS) == self.is_moder

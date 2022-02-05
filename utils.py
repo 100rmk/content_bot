@@ -1,5 +1,7 @@
 import logging
 import ffmpeg
+import urllib.request
+import io
 
 
 def video_convert(link, tmp_file):
@@ -38,3 +40,10 @@ def img_convert(link, tmp_file):
             .run(quiet=True)
     )
     logging.info('photo  converting  complete')
+
+
+def get_content_bytes(url):
+    req = urllib.request.Request(url)
+    with urllib.request.urlopen(req) as resp:
+        ds = io.BytesIO(resp.read())
+    return ds
