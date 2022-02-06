@@ -23,4 +23,4 @@ jobs:
         username: ${{ secrets.HOST_USERNAME }}
         password: ${{ secrets.HOST_PASSWORD }}
         port: 22
-        script: ansible-playbook ~/playbooks/bot.deploy.yml --extra-vars "inst_pass=${{ secrets.INST_PASS }} inst_login=${{ secrets.INST_LOGIN }} email=${{ secrets.EMAIL }} password=${{ secrets.DOCKER_PASSWORD }} username=${{ secrets.DOCKER_USERNAME }} token=${{ secrets.BOT_TOKEN }} admin_id=${{ secrets.ADMIN_ID }} channel_id=${{ secrets.CHANNEL_ID }} sugg_id=${{ secrets.SUGG_ID }} mongo=${{ secrets.MONGO_URL }} app_host=${{ secrets.WEBAPP_HOST }} app_port=${{ secrets.WEBAPP_PORT }} webhook=${{ secrets.WEBHOOK_URL }}"
+        script: ansible-playbook ~/playbooks/bot.deploy.yml --extra-vars "secrets=${{ secrets }}"
