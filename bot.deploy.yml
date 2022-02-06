@@ -11,9 +11,8 @@
 
         - name: Remove docker image
           docker_image:
-            name: "{{ item.DOCKER_USERNAME }}/vidmem_bot:latest"
+            name: "{{ DOCKER_USERNAME }}/vidmem_bot:latest"
             state: absent
-          with_items: "{{ secrets }}"
       become: yes
       become_user: root
 
@@ -21,31 +20,29 @@
       block:
         - name: Docker login
           docker_login:
-            email: '{{item.EMAIL}}'
-            username: "{{ item.DOCKER_USERNAME }}"
-            password: "{{ item.DOCKER_PASSWORD }}"
-          with_items: "{{ secrets }}"
+            email: '{{ EMAIL }}'
+            username: "{{ DOCKER_USERNAME }}"
+            password: "{{ DOCKER_PASSWORD }}"
 
         - name: Запуск контейнера
           docker_container:
             name: 'vidmem_bot'
-            image: '{{ item.DOCKER_USERNAME }}/vidmem_bot:latest'
+            image: '{{ DOCKER_USERNAME }}/vidmem_bot:latest'
             restart_policy: unless-stopped
             state: started
             pull: yes
             network_mode: host
             env:
-              API_TOKEN: "{{ item.BOT_TOKEN }}"
-              ADMIN_ID: "{{ item.ADMIN_ID }}"
-              CHANNEL_ID: "{{ item.CHANNEL_ID }}"
-              SUGG_ID: "{{ item.SUGG_ID }}"
-              MONGODB_URL: "{{ item.MONGO_URL }}"
-              WEBAPP_HOST: "{{ item.WEBAPP_HOST }}"
-              WEBAPP_PORT: "{{ item.WEBAPP_PORT }}"
-              WEBHOOK_URL: "{{ item.WEBHOOK_URL }}"
-              INST_LOGIN: "{{ item.INST_LOGIN }}"
-              INST_PASS: "{{ item.INST_PASS }}"
-          with_items: "{{ secrets }}"
+              API_TOKEN: "{{ BOT_TOKEN }}"
+              ADMIN_ID: "{{ ADMIN_ID }}"
+              CHANNEL_ID: "{{ CHANNEL_ID }}"
+              SUGG_ID: "{{ SUGG_ID }}"
+              MONGODB_URL: "{{ MONGO_URL }}"
+              WEBAPP_HOST: "{{ WEBAPP_HOST }}"
+              WEBAPP_PORT: "{{ WEBAPP_PORT }}"
+              WEBHOOK_URL: "{{ WEBHOOK_URL }}"
+              INST_LOGIN: "{{ INST_LOGIN }}"
+              INST_PASS: "{{ INST_PASS }}"
 
       become: yes
       become_user: root
