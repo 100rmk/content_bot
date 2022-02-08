@@ -13,25 +13,9 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from db import db
 from db.fsm import GroupState
 from etc.config import RECIPIENT_CHAT_ID, SUGGEST_ID
-from filters import AdminFilter, NicknameFilter, ModerFilter
-from misc import dp, bot, inst_loader
+from misc import dp, bot, inst_loader, inline_reaction, inline_moderation
 from utils import *
 from other import text
-
-inline_reaction = InlineKeyboardMarkup(row_width=2)
-like_btn = InlineKeyboardButton(text.INLINE_TEXT['thumbUp'], callback_data='up')
-dislike_btn = InlineKeyboardButton(text.INLINE_TEXT['thumbDown'], callback_data='down')
-inline_reaction.add(like_btn, dislike_btn)
-
-inline_moderation = InlineKeyboardMarkup(row_width=2)
-post_btn = InlineKeyboardButton('POST', callback_data='post')
-remove_btn = InlineKeyboardButton('REMOVE', callback_data='remove')
-ban_btn = InlineKeyboardButton('BAN', callback_data='ban')
-inline_moderation.add(post_btn).add(remove_btn, ban_btn)
-
-dp.filters_factory.bind(AdminFilter)
-dp.filters_factory.bind(NicknameFilter)
-dp.filters_factory.bind(ModerFilter)
 
 
 # Предложка
