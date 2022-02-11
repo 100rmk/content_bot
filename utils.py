@@ -17,7 +17,7 @@ def video_convert(link, tmp_file):
 
     (
         ffmpeg
-            .drawtext(in_file, text='t.me/vidmem', fontfile='other/font.ttf', fontsize='(h/25)',
+            .drawtext(in_file, text='t.me/vidmem', fontfile='other/font.ttf', fontsize='(h/25)', # TODO: в text вынести в .env
                       fontcolor='#d2d2e0', fix_bounds=True,
                       x='if(lt(mod(t,20),10),w,W-w-10)',
                       y='if(lt(mod(t,20),10),h/2,H-h-10)')
@@ -45,5 +45,5 @@ def img_convert(link, tmp_file):
 def get_content_bytes(url):
     req = urllib.request.Request(url)
     with urllib.request.urlopen(req) as resp:
-        ds = io.BytesIO(resp.read())
-    return ds
+        dataset = io.BytesIO(resp.read())
+    return dataset

@@ -16,6 +16,7 @@ from utils import video_convert, img_convert
 
 cache_time = 8
 
+# TODO: у callback_liking и callback_disliking есть общие логика работы
 
 # reaction: like
 @dp.callback_query_handler(text='up')
@@ -24,30 +25,30 @@ async def callback_liking(callback_query: types.CallbackQuery):
         message_id = callback_query.message.message_id
         user_id = callback_query.from_user.id
         try:
-            dislikes_arr, dislikes_count, likes_arr, likes_count = db.get_db_params(message_id)
+            dislikes, dislikes_count, likes, likes_count = db.get_db_params(message_id)
         except Exception:
             return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.LIKES_TIMEOUT)
 
-        like_btn = None
+        like_button = None
 
         # Если пользователь лайкнувший пост повторно нажал на лайк
-        if user_id in likes_arr:
+        if user_id in likes:
             db.add_user_reaction(message_id, user_id, action='pull', reaction='likes')
             likes_count = likes_count - 1
-            like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
+            like_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
             await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                             text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["fail"]}')
-        elif user_id in dislikes_arr:
+        elif user_id in dislikes:
             db.add_user_reaction(message_id, user_id, action='pull', reaction='dislikes')
             dislikes_count = dislikes_count - 1
             await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                             text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["success"]}')
 
-        if like_btn is not None:
-            inline_kb_full = InlineKeyboardMarkup(row_width=2)
-            dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
-            inline_kb_full.add(like_btn, dislike_btn)
-            await edit_reply_markup(inline_kb_full, message_id)
+        if like_button is not None:
+            inline_keyboard = InlineKeyboardMarkup(row_width=2)
+            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+            inline_keyboard.add(like_button, dislike_button)
+            await edit_reply_markup(inline_keyboard, message_id)
 
             return AnswerCallbackQuery(callback_query.id, cache_time=cache_time,
                                        text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["fail"]}')
@@ -56,11 +57,11 @@ async def callback_liking(callback_query: types.CallbackQuery):
 
         await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                         text=f'{text.INLINE_TEXT["thumbUp"]} {text.INLINE_TEXT["success"]}')
-        inline_kb_full = InlineKeyboardMarkup(row_width=2)
-        like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count + 1}', callback_data='up')
-        dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
-        inline_kb_full.add(like_btn, dislike_btn)
-        await edit_reply_markup(inline_kb_full, message_id)
+        inline_keyboard = InlineKeyboardMarkup(row_width=2)
+        like_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count + 1}', callback_data='up')
+        dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+        inline_keyboard.add(like_button, dislike_button)
+        await edit_reply_markup(inline_keyboard, message_id)
 
         return
     except aiogram.utils.exceptions.InvalidQueryID:
@@ -73,28 +74,28 @@ async def callback_disliking(callback_query: types.CallbackQuery):
         message_id = callback_query.message.message_id
         user_id = callback_query.from_user.id
         try:
-            dislikes_arr, dislikes_count, likes_arr, likes_count = db.get_db_params(message_id)
+            dislikes, dislikes_count, likes, likes_count = db.get_db_params(message_id)
         except Exception:
             return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.LIKES_TIMEOUT)
-        dislike_btn = None
+        dislike_button = None
 
-        if user_id in likes_arr:
+        if user_id in likes:
             db.add_user_reaction(message_id, user_id, action='pull', reaction='likes')
             likes_count = likes_count - 1
             await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                             text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["success"]}')
-        elif user_id in dislikes_arr:
+        elif user_id in dislikes:
             db.add_user_reaction(message_id, user_id, action='pull', reaction='dislikes')
             dislikes_count = dislikes_count - 1
-            dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
             await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                             text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["fail"]}')
 
-        if dislike_btn is not None:
-            inline_kb_full = InlineKeyboardMarkup(row_width=2)
-            like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
-            inline_kb_full.add(like_btn, dislike_btn)
-            await edit_reply_markup(inline_kb_full, message_id)
+        if dislike_button is not None:
+            inline_keyboard = InlineKeyboardMarkup(row_width=2)
+            like_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
+            inline_keyboard.add(like_button, dislike_button)
+            await edit_reply_markup(inline_keyboard, message_id)
 
             return AnswerCallbackQuery(callback_query.id, cache_time=cache_time,
                                        text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["fail"]}')
@@ -102,11 +103,11 @@ async def callback_disliking(callback_query: types.CallbackQuery):
         db.add_user_reaction(message_id, user_id, action='push', reaction='dislikes')
         await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                         text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["success"]}')
-        inline_kb_full = InlineKeyboardMarkup(row_width=2)
-        like_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
-        dislike_btn = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count + 1}', callback_data='down')
-        inline_kb_full.add(like_btn, dislike_btn)
-        await edit_reply_markup(inline_kb_full, message_id)
+        inline_keyboard = InlineKeyboardMarkup(row_width=2)
+        like_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
+        dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count + 1}', callback_data='down')
+        inline_keyboard.add(like_button, dislike_button)
+        await edit_reply_markup(inline_keyboard, message_id)
 
         return
     except aiogram.utils.exceptions.InvalidQueryID:

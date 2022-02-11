@@ -1,10 +1,10 @@
 from aiogram import types
 from datetime import datetime
 from misc import db_mongo
-from etc.config import POST_COUNT_IN_WEEK
+from etc.config import POST_COUNT_IN_WEEK #TODO: вынести в .env (см. https://pypi.org/project/python-dotenv/)
 
-_db_posts = db_mongo.tg_memvid.posts
-_db_suggest = db_mongo.tg_memvid.users
+_db_posts = db_mongo.tg_memvid.posts #TODO: заменить tg_memvid на абстрактное обозначение
+_db_suggest = db_mongo.tg_memvid.users #TODO: тоже самое
 
 
 def insert_post(message: types.Message, id, username, user_id):
@@ -67,8 +67,8 @@ def reset_post_count():
 
 def get_db_params(message_id):
     response = get_post(message_id)
-    likes_arr = response.get('likes')
-    dislikes_arr = response.get('dislikes')
-    likes_count = len(likes_arr)
-    dislikes_count = len(dislikes_arr)
-    return dislikes_arr, dislikes_count, likes_arr, likes_count
+    likes = response.get('likes')
+    dislikes = response.get('dislikes')
+    likes_count = len(likes)
+    dislikes_count = len(dislikes)
+    return dislikes, dislikes_count, likes, likes_count

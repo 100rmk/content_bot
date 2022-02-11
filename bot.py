@@ -9,6 +9,7 @@ from schedule_background import run_continuously
 
 import handlers
 
+# https://www.instana.com/ | https://sentry.io/
 logging.basicConfig(level=logging.INFO)
 stop_run_continuously = None
 

@@ -44,6 +44,7 @@ async def video_post(message: types.Message):
         file = await bot.get_file(video.file_id)
         file_link = bot.get_file_url(file.file_path)
 
+        # TODO: вынести в отдельную функцию
         tmp_vid = 'tmp/tmp_video_out.mp4'
         if os.path.isfile(tmp_vid):
             os.remove(tmp_vid)
@@ -55,6 +56,7 @@ async def video_post(message: types.Message):
             logging.exception('ffmpeg error')
             return
 
+        # TODO: вынести
         tg_upload = types.InputFile(tmp_vid)
         await bot.delete_message(message.chat.id, wait_message.message_id)
         response = await bot.send_video(RECIPIENT_CHAT_ID, tg_upload, caption=message.caption,
@@ -73,6 +75,7 @@ async def img_post(message: types.Message):
         file = await bot.get_file(img[-1].file_id)
         file_link = bot.get_file_url(file.file_path)
 
+        # TODO: вынести
         tmp_img = 'tmp/tmp_image_out.jpg'
         if os.path.isfile(tmp_img):
             os.remove(tmp_img)
@@ -109,9 +112,9 @@ async def ad_post(message: types.Message, state: FSMContext):
     try:
         state_data = await state.get_data()
         inline_link = InlineKeyboardMarkup(row_width=1)
-        link_btn = InlineKeyboardButton(text.AD_GOTO,
+        like_button = InlineKeyboardButton(text.AD_GOTO,
                                         url=state_data['ad_url'])  # TODO: Добавить еще один стэйт для имени кнопки
-        inline_link.add(link_btn)
+        inline_link.add(like_button)
         await bot.copy_message(chat_id=RECIPIENT_CHAT_ID, from_chat_id=message.chat.id, message_id=message.message_id,
                                disable_notification=True, reply_markup=inline_link)
         await state.finish()
@@ -133,8 +136,8 @@ async def instagram_post(message: types.Message):
         is_video_tuple = post.get_is_videos()
         if len(is_video_tuple) > 1:
             for sidecar in post.get_sidecar_nodes():
-                ds = get_content_bytes(sidecar.video_url if is_video_tuple[count] else sidecar.display_url)
-                tg_upload = types.InputFile(ds)
+                dataset = get_content_bytes(sidecar.video_url if is_video_tuple[count] else sidecar.display_url)
+                tg_upload = types.InputFile(dataset)
                 if is_video_tuple[count]:
                     await bot.send_video(message.chat.id, tg_upload)
                 else:
@@ -142,8 +145,8 @@ async def instagram_post(message: types.Message):
 
                 count += 1
         elif len(is_video_tuple) == 1:
-            ds = get_content_bytes(post.video_url if post.is_video else post.url)
-            tg_upload = types.InputFile(ds)
+            dataset = get_content_bytes(post.video_url if post.is_video else post.url)
+            tg_upload = types.InputFile(dataset)
             if post.is_video:
                 await bot.send_video(message.chat.id, tg_upload)
             else:
