@@ -4,11 +4,11 @@ import pymongo
 from aiogram import Bot
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import Dispatcher
-from instaloader import Instaloader
-from filters import AdminFilter, NicknameFilter, ModerFilter
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from instaloader import Instaloader
 
 from etc.config import API_TOKEN, MONGODB_URL, INST_META
+from filters import AdminFilter, NicknameFilter, ModerFilter
 from other import text
 
 logging.basicConfig(level=logging.INFO)
@@ -36,5 +36,8 @@ dp.filters_factory.bind(NicknameFilter)
 dp.filters_factory.bind(ModerFilter)
 
 # inst login buttons
-inst_loader = Instaloader(user_agent=INST_META['user_agent'])
-inst_loader.login(INST_META['login'], INST_META['password'])
+try:
+    inst_loader = Instaloader()  # TODO: как вариант - переопределить
+    inst_loader.login(INST_META['login'], INST_META['password'])
+except Exception as _:
+    pass  # TODO: переделать, это костыль

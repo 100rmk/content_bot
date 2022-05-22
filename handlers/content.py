@@ -113,7 +113,7 @@ async def ad_post(message: types.Message, state: FSMContext):
         state_data = await state.get_data()
         inline_link = InlineKeyboardMarkup(row_width=1)
         like_button = InlineKeyboardButton(text.AD_GOTO,
-                                        url=state_data['ad_url'])  # TODO: Добавить еще один стэйт для имени кнопки
+                                           url=state_data['ad_url'])  # TODO: Добавить еще один стэйт для имени кнопки
         inline_link.add(like_button)
         await bot.copy_message(chat_id=RECIPIENT_CHAT_ID, from_chat_id=message.chat.id, message_id=message.message_id,
                                disable_notification=True, reply_markup=inline_link)

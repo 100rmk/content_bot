@@ -16,6 +16,7 @@ from utils import video_convert, img_convert
 
 cache_time = 8
 
+
 # TODO: у callback_liking и callback_disliking есть общие логика работы
 
 # reaction: like
@@ -46,7 +47,8 @@ async def callback_liking(callback_query: types.CallbackQuery):
 
         if like_button is not None:
             inline_keyboard = InlineKeyboardMarkup(row_width=2)
-            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}',
+                                                  callback_data='down')
             inline_keyboard.add(like_button, dislike_button)
             await edit_reply_markup(inline_keyboard, message_id)
 
@@ -66,6 +68,7 @@ async def callback_liking(callback_query: types.CallbackQuery):
         return
     except aiogram.utils.exceptions.InvalidQueryID:
         return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.SMTH_WRONG)
+
 
 # reaction: dislike
 @dp.callback_query_handler(text='down', run_task=True)
@@ -87,7 +90,8 @@ async def callback_disliking(callback_query: types.CallbackQuery):
         elif user_id in dislikes:
             db.add_user_reaction(message_id, user_id, action='pull', reaction='dislikes')
             dislikes_count = dislikes_count - 1
-            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}', callback_data='down')
+            dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count}',
+                                                  callback_data='down')
             await bot.answer_callback_query(callback_query.id, cache_time=cache_time,
                                             text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["fail"]}')
 
@@ -105,13 +109,15 @@ async def callback_disliking(callback_query: types.CallbackQuery):
                                         text=f'{text.INLINE_TEXT["thumbDown"]} {text.INLINE_TEXT["success"]}')
         inline_keyboard = InlineKeyboardMarkup(row_width=2)
         like_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbUp"]}{likes_count}', callback_data='up')
-        dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count + 1}', callback_data='down')
+        dislike_button = InlineKeyboardButton(f'{text.INLINE_TEXT["thumbDown"]}{dislikes_count + 1}',
+                                              callback_data='down')
         inline_keyboard.add(like_button, dislike_button)
         await edit_reply_markup(inline_keyboard, message_id)
 
         return
     except aiogram.utils.exceptions.InvalidQueryID:
         return AnswerCallbackQuery(callback_query.id, cache_time=cache_time, text=text.SMTH_WRONG)
+
 
 # reaction: ban user
 @dp.callback_query_handler(text='ban')

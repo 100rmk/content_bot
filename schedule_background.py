@@ -1,4 +1,3 @@
-import concurrent.futures
 import threading
 import time
 import logging
@@ -10,7 +9,6 @@ import schedule
 def run_continuously(interval=60):
     cease_continuous_run = threading.Event()
 
-    # TODO: подумать над вынесением из функции
     class ScheduleThread(threading.Thread):
         @classmethod
         def run(cls):

@@ -21,7 +21,5 @@ MONGODB_URL = os.getenv('MONGODB_URL')
 
 INST_META = {
     'login': os.getenv('INST_LOGIN'),
-    'password': os.getenv('INST_PASS'),
-    'user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) '
-                  'Chrome/97.0.4692.99 Safari/537.36 '  # TODO: change
+    'password': os.getenv('INST_PASS')
 }
