@@ -1,35 +1,30 @@
 from aiogram import types
 from aiogram.dispatcher.webhook import SendMessage
 
-from db import db
 from db.fsm import GroupState
-from misc import dp
+from main import db
 from other.text import WELCOME, INFO, NOT_FOUND, UNBANNED, SEND_THE_LINK
 
 
-@dp.message_handler(commands=["start"])
 async def start(message: types.Message):
     welcome_text = WELCOME
-    return SendMessage(message.chat.id, welcome_text)
+    return SendMessage(chat_id=message.chat.id, text=welcome_text)
 
 
-@dp.message_handler(is_admin=True, commands=["unban"])
 async def unban(message: types.Message):
     username = message.get_args()
-    resp = db.unban_user(username)
+    resp = db.unban_user(username=username)
     if resp is None:
-        return SendMessage(message.chat.id, f'{username} ' + NOT_FOUND)
+        return SendMessage(chat_id=message.chat.id, text=f'{username} ' + NOT_FOUND)
 
-    return SendMessage(message.chat.id, f'{username} ' + UNBANNED)
+    return SendMessage(chat_id=message.chat.id, text=f'{username} ' + UNBANNED)
 
 
-@dp.message_handler(commands=["info"])
 async def info(message: types.Message):
     welcome_text = INFO
-    return SendMessage(message.chat.id, welcome_text)
+    return SendMessage(chat_id=message.chat.id, text=welcome_text)
 
 
-@dp.message_handler(is_admin=True, commands=["ad"])
-async def advertisment(message: types.Message):
+async def advertisement(message: types.Message):
     await GroupState.advertising_link.set()
-    return SendMessage(message.chat.id, SEND_THE_LINK)
+    return SendMessage(chat_id=message.chat.id, text=SEND_THE_LINK)

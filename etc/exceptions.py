@@ -1,0 +1,2 @@
+class FfmpegException(Exception):
+    pass

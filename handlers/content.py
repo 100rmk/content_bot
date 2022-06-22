@@ -1,136 +1,128 @@
-import asyncio
-import logging
-import os
 import re
 from datetime import datetime
 
-from instaloader import Post
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import SendMessage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from instaloader import Post
 
-from db import db
 from db.fsm import GroupState
-from etc.config import RECIPIENT_CHAT_ID, SUGGEST_ID
-from misc import dp, bot, inst_loader, inline_reaction, inline_moderation
-from utils import *
+from etc.config import Config
+from etc.telegram import Buttons
+from main import bot, db, instagram
 from other import text
+from service.media import upload_video, upload_img
+from utils.utils import get_content_bytes
+
+inst_url = re.compile(r'^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com.*\/*\/)([\d\w\-_]+)(?:\/)?(\?.*)?$')
 
 
 # Предложка
-@dp.message_handler(is_admin=False, has_nickname=True, content_types=[types.ContentType.VIDEO, types.ContentType.PHOTO])
 async def suggest_posts(message: types.Message):
     db.add_user(user_id=message.from_user.id, username=message.from_user.username)
-    user = db.get_user(message.from_user.id)
+    user = db.get_user(user_id=message.from_user.id)
     posts_count = user.get('sugg_post_count')
-    if user.get('is_banned') is True:
-        return SendMessage(message.chat.id, text.MESSAGE_FOR_BANNED_USER)
+
+    if user.get('is_banned'):
+        return SendMessage(chat_id=message.chat.id, text=text.MESSAGE_FOR_BANNED_USER)
     if posts_count == 0:
-        return SendMessage(message.chat.id, text.LIMIT_EXCEEDED)
-    await bot.copy_message(chat_id=SUGGEST_ID, from_chat_id=message.chat.id, message_id=message.message_id,
-                           disable_notification=True, caption=f'@{message.from_user.username}|{message.from_user.id}',
-                           reply_markup=inline_moderation)
+        return SendMessage(chat_id=message.chat.id, text=text.LIMIT_EXCEEDED)
+
+    await bot.copy_message(
+        chat_id=Config.suggest_group_id,
+        from_chat_id=message.chat.id,
+        message_id=message.message_id,
+        disable_notification=True,
+        caption=f'@{message.from_user.username}|{message.from_user.id}',
+        reply_markup=Buttons.moderation
+    )
     db.reduce_post_count(user_id=message.from_user.id)
-    return SendMessage(message.chat.id, f'{text.POST_ACCEPTED} {posts_count - 1}')
+    return SendMessage(chat_id=message.chat.id, text=f'{text.POST_ACCEPTED} {posts_count - 1}')
 
 
-@dp.message_handler(is_admin=True, content_types=[types.ContentType.VIDEO, types.ContentType.ANIMATION], run_task=True)
 async def video_post(message: types.Message):
-    video = message.video if message.video else message.animation
+    video = message.video or message.animation
+    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
-        wait_message = await bot.send_message(message.chat.id, text.PROCESSING)
-
-        file = await bot.get_file(video.file_id)
-        file_link = bot.get_file_url(file.file_path)
-
-        # TODO: вынести в отдельную функцию
-        tmp_vid = 'tmp/tmp_video_out.mp4'
-        if os.path.isfile(tmp_vid):
-            os.remove(tmp_vid)
-
-        try:
-            video_convert(file_link, tmp_vid)
-        except Exception as e:
-            await bot.delete_message(message.chat.id, wait_message.message_id)
-            logging.exception('ffmpeg error')
-            return
-
-        # TODO: вынести
-        tg_upload = types.InputFile(tmp_vid)
+        uploaded = await upload_video(video=video)
         await bot.delete_message(message.chat.id, wait_message.message_id)
-        response = await bot.send_video(RECIPIENT_CHAT_ID, tg_upload, caption=message.caption,
-                                        reply_markup=inline_reaction)
-        db.insert_post(message, response.message_id, message.from_user.username, user_id=message.from_user.id)
-        return SendMessage(message.chat.id, f'{datetime.now()} vidos zaletel')
+        response = await bot.send_video(
+            chat_id=Config.recipient_chat_id,
+            video=uploaded,
+            caption=message.caption,
+            reply_markup=Buttons.reaction
+        )
+        db.insert_post(
+            file_id=video.file_id,
+            id_=response.message_id,
+            username=message.from_user.username,
+            user_id=message.from_user.id
+        )
+        return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} vidos zaletel')  # TODO: вынести в декоратор
     except Exception as e:
-        return SendMessage(message.chat.id, str(e))
+        return SendMessage(chat_id=message.chat.id, text=str(e))
 
 
-@dp.message_handler(is_admin=True, content_types=types.ContentType.PHOTO)
 async def img_post(message: types.Message):
     img = message.photo
+    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
-        wait_message = await bot.send_message(message.chat.id, text.PROCESSING)
-        file = await bot.get_file(img[-1].file_id)
-        file_link = bot.get_file_url(file.file_path)
-
-        # TODO: вынести
-        tmp_img = 'tmp/tmp_image_out.jpg'
-        if os.path.isfile(tmp_img):
-            os.remove(tmp_img)
-
-        try:
-            img_convert(file_link, tmp_img)
-        except Exception as e:
-            await bot.delete_message(message.chat.id, wait_message.message_id)
-            logging.exception('ffmpeg error')
-            return
-
-        tg_upload = types.InputFile(tmp_img)
+        uploaded = await upload_img(img=img)
         await bot.delete_message(message.chat.id, wait_message.message_id)
-        response = await bot.send_photo(RECIPIENT_CHAT_ID, tg_upload, caption=message.caption,
-                                        reply_markup=inline_reaction)
-        db.insert_post(message, response.message_id, message.from_user.username, user_id=message.from_user.id)
+        response = await bot.send_photo(
+            chat_id=Config.recipient_chat_id,
+            photo=uploaded,
+            caption=message.caption,
+            reply_markup=Buttons.reaction
+        )
+        db.insert_post(
+            file_id=img[-1].file_id,
+            id_=response.message_id,
+            username=message.from_user.username,
+            user_id=message.from_user.id
+        )
 
-        return SendMessage(message.chat.id, f'{datetime.now()} img zaletel')  # TODO: исправить логирование
+        return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} img zaletel')  # TODO: исправить логирование
     except Exception as e:
-        return SendMessage(message.chat.id, str(e))
+        return SendMessage(chat_id=message.chat.id, text=str(e))
 
 
-@dp.message_handler(is_admin=True, state=GroupState.advertising_link)  # TODO: проверку на ссылку
-async def ad_link(message: types.Message, state: FSMContext):
+async def ad_link(message: types.Message, state: FSMContext):  # TODO: проверку на ссылку
     url = message.text
     await state.update_data(ad_url=url)
     await message.answer(text.SEND_AD_POST)
     await GroupState.advertising_inline.set()
 
 
-@dp.message_handler(is_admin=True, state=GroupState.advertising_inline,
-                    content_types=types.ContentType.ANY)
 async def ad_post(message: types.Message, state: FSMContext):
     try:
         state_data = await state.get_data()
         inline_link = InlineKeyboardMarkup(row_width=1)
-        like_button = InlineKeyboardButton(text.AD_GOTO,
-                                           url=state_data['ad_url'])  # TODO: Добавить еще один стэйт для имени кнопки
+        # TODO: Добавить еще один стэйт для имени кнопки
+        like_button = InlineKeyboardButton(text.AD_GOTO, url=state_data['ad_url'])
         inline_link.add(like_button)
-        await bot.copy_message(chat_id=RECIPIENT_CHAT_ID, from_chat_id=message.chat.id, message_id=message.message_id,
-                               disable_notification=True, reply_markup=inline_link)
+        await bot.copy_message(
+            chat_id=Config.recipient_chat_id,
+            from_chat_id=message.chat.id,
+            message_id=message.message_id,
+            disable_notification=True,
+            reply_markup=inline_link
+        )
         await state.finish()
-        return SendMessage(message.chat.id, text.AD_POST_SENT)
+        return SendMessage(chat_id=message.chat.id, text=text.AD_POST_SENT)
     except Exception as e:
         await state.finish()
-        return SendMessage(message.chat.id, str(e))
+        return SendMessage(chat_id=message.chat.id, text=str(e))
 
 
-@dp.message_handler(is_moder=True, content_types=types.ContentType.TEXT, run_task=True,
-                    regexp='(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)')
 async def instagram_post(message: types.Message):
     try:
-        code = re.search('^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com.*\/*\/)([\d\w\-_]+)(?:\/)?(\?.*)?$',
-                         message.text).group(1)
-        post = Post.from_shortcode(inst_loader.context, code)
+        code = re.search(
+            pattern=inst_url,
+            string=message.text
+        ).group(1)
+        post = Post.from_shortcode(context=instagram.context, shortcode=code)
 
         count = 0
         is_video_tuple = post.get_is_videos()
@@ -142,8 +134,8 @@ async def instagram_post(message: types.Message):
                     await bot.send_video(message.chat.id, tg_upload)
                 else:
                     await bot.send_photo(message.chat.id, tg_upload)
-
                 count += 1
+
         elif len(is_video_tuple) == 1:
             dataset = get_content_bytes(post.video_url if post.is_video else post.url)
             tg_upload = types.InputFile(dataset)
@@ -153,4 +145,4 @@ async def instagram_post(message: types.Message):
                 await bot.send_photo(message.chat.id, tg_upload)
 
     except Exception as e:
-        return SendMessage(message.chat.id, f'Не получилось \n {str(e)}')
+        return SendMessage(chat_id=message.chat.id, text=f'Не получилось \n {str(e)}')
