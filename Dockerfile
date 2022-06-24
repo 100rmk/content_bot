@@ -42,4 +42,4 @@ RUN apk add --update --no-cache \
         libtheora libvpx \
     && rm -rf /var/cache/apk/*
 
-CMD [ "python", "./bot.py" ]
+CMD [ "python", "./main.py" ]
