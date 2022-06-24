@@ -13,6 +13,9 @@ from etc.filters import AdminFilter, NicknameFilter, ModerFilter
 from handlers.registrator import register_handlers
 from service.instagram import Instagram
 from service.schedule_tasks import update_users_sugg_count, upload_cache_db
+from utils.utils import check_config
+
+check_config(Config)
 
 bot = Bot(token=Config.tg_token)
 storage = MemoryStorage()

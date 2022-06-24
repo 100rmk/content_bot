@@ -42,13 +42,13 @@ class BaseDB(ABC):
 
 class AsyncBaseCache(ABC):
     @abstractmethod
-    async def get(self, key: Any):
+    async def get(self, key: str):
         pass
 
     @abstractmethod
-    async def set(self, key: Any, value: Union[str, bytes, int, float]) -> Any:
+    async def set(self, key: str, value: Union[str, bytes, int, float]) -> Any:
         pass
 
     @abstractmethod
-    async def delete(self, key: Any):
+    async def delete(self, key: str):
         pass

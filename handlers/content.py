@@ -45,7 +45,7 @@ async def video_post(message: types.Message):
     video = message.video or message.animation
     wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
-        uploaded = await upload_video(video=video)
+        uploaded = await upload_video(video=video, watermark_text=Config.watermark_text)
         await bot.delete_message(message.chat.id, wait_message.message_id)
         response = await bot.send_video(
             chat_id=Config.recipient_chat_id,
@@ -68,7 +68,7 @@ async def img_post(message: types.Message):
     img = message.photo
     wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
-        uploaded = await upload_img(img=img)
+        uploaded = await upload_img(img=img, watermark_text=Config.watermark_text)
         await bot.delete_message(message.chat.id, wait_message.message_id)
         response = await bot.send_photo(
             chat_id=Config.recipient_chat_id,

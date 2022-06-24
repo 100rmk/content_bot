@@ -6,12 +6,12 @@
       block:
         - name: Remove docker container
           docker_container:
-            name: 'vidmem_bot'
+            name: '{{ BOT_NAME }}'
             state: absent
 
         - name: Remove docker image
           docker_image:
-            name: "{{ DOCKER_USERNAME }}/vidmem_bot:latest"
+            name: "{{ DOCKER_USERNAME }}/{{ BOT_NAME }}:latest"
             state: absent
       become: yes
       become_user: root
@@ -26,21 +26,28 @@
 
         - name: Запуск контейнера
           docker_container:
-            name: 'vidmem_bot'
-            image: '{{ DOCKER_USERNAME }}/vidmem_bot:latest'
+            name: '{{ BOT_NAME }}'
+            image: '{{ DOCKER_USERNAME }}/{{ BOT_NAME }}:latest'
             restart_policy: unless-stopped
             state: started
             pull: yes
             network_mode: host
             env:
+              BOT_NAME: "{{ BOT_NAME }}"
+              WATERMARK_TEXT: "{{ WATERMARK_TEXT }}"
+
               API_TOKEN: "{{ BOT_TOKEN }}"
               ADMIN_ID: "{{ ADMIN_ID }}"
               CHANNEL_ID: "{{ CHANNEL_ID }}"
               SUGG_ID: "{{ SUGG_ID }}"
-              MONGODB_URL: "{{ MONGO_URL }}"
+
+              DB_URL: "{{ DB_URL }}"
+              CACHE_URL: "{{ CACHE_URL }}"
+
               WEBAPP_HOST: "{{ WEBAPP_HOST }}"
               WEBAPP_PORT: "{{ WEBAPP_PORT }}"
               WEBHOOK_URL: "{{ WEBHOOK_URL }}"
+
               INST_LOGIN: "{{ INST_LOGIN }}"
               INST_PASS: "{{ INST_PASS }}"
 

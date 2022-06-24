@@ -95,7 +95,7 @@ async def remove_sugg_post(callback_query: types.CallbackQuery):
 
 
 # reaction: post sugg content
-async def post_sugg_content(callback_query: types.CallbackQuery):  # TODO: подумать над рефакторингом
+async def post_sugg_content(callback_query: types.CallbackQuery):
     message = callback_query.message
     await bot.answer_callback_query(callback_query.id, text=text.POST_SOON)
     file_id: int
@@ -105,25 +105,24 @@ async def post_sugg_content(callback_query: types.CallbackQuery):  # TODO: по�
         user_id = meta[1]
 
         if photo := message.photo:
-            tg_upload = await upload_img(img=photo)
+            tg_upload = await upload_img(img=photo, watermark_text=Config.watermark_text)
             response = await bot.send_photo(
                 chat_id=Config.recipient_chat_id,
                 photo=tg_upload,
                 caption=sugg_post_description,
                 reply_markup=Buttons.reaction
             )
-            file_id = photo[-1].file_id
+            db.insert_post(file_id=photo[-1].file_id, id_=response.message_id, username=username, user_id=user_id)
         if video := message.video:
-            tg_upload = await upload_video(video=video)
+            tg_upload = await upload_video(video=video, watermark_text=Config.watermark_text)
             response = await bot.send_video(
                 chat_id=Config.recipient_chat_id,
                 video=tg_upload,
                 caption=sugg_post_description,
                 reply_markup=Buttons.reaction
             )
-            file_id = video.file_id
+            db.insert_post(file_id=video.file_id, id_=response.message_id, username=username, user_id=user_id)
 
-        db.insert_post(file_id=file_id, id_=response.message_id, username=username, user_id=user_id)
         await remove_sugg_post(callback_query)
     except Exception:
         return AnswerCallbackQuery(callback_query.id, text=text.POST_FAIL)

@@ -6,9 +6,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# TODO: ПРОВЕРКА КОНФИГА
 class Config:
-    bot_name: str = os.getenv('BOT_NAME')  # TODO: добавить переменную окружения
+    bot_name: str = os.getenv('BOT_NAME')
+    watermark_text: str = os.getenv('WATERMARK_TEXT')
     # telegram
     tg_token: str = os.getenv('API_TOKEN')
     webhook_path: str = '/'
@@ -19,12 +19,13 @@ class Config:
     root_id: int = int(os.getenv('ADMIN_ID'))
     admins: Tuple[int] = (root_id,)
     moderators: Tuple[int] = (root_id,)
+    post_count_in_week = os.getenv('POST_COUNT_IN_WEEK', 25)
     # application
     app_host: str = os.getenv('WEBAPP_HOST')
     app_port: str = os.getenv('WEBAPP_PORT')
     # db
-    db_url = os.getenv('DB_URL')  # TODO: сделать переменную DB_URL вместо MONGODB_URL
-    cache_url = os.getenv('CACHE_URL')
+    db_url = os.getenv('DB_URL')
+    cache_url = os.getenv('CACHE_URL') + '/' + bot_name
 
     # services
     class Instagram:
@@ -32,5 +33,4 @@ class Config:
         password: Optional[str] = os.getenv('INST_PASS')
 
 
-POST_COUNT_IN_WEEK = 25
 sugg_post_description = f'Прислали через @{Config.bot_name}'

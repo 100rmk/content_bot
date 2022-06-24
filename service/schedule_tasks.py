@@ -6,7 +6,7 @@ from pymongo import UpdateOne
 from db.BaseModel import AsyncBaseCache, BaseDB
 
 
-async def update_users_sugg_count(db):
+async def update_users_sugg_count(db: BaseDB):
     db.reset_post_count()
     logging.info('Posts count updated')
 
