@@ -1,4 +1,4 @@
-FROM python:3.9.6-alpine
+FROM python:3.10.2-alpine
 
 LABEL maintainer="Dmitrii Nesvit. mail: hinesqui@gmail.com"
 
@@ -8,8 +8,6 @@ ENV API_TOKEN ''
 ENV WEBHOOK_URL ''
 ENV WEBAPP_HOST ''
 ENV WEBAPP_PORT ''
-ENV RECIPIENT_CHAT_ID ''
-ENV ACESS_ID ''
 ENV MONGODB_URL ''
 
 COPY . .
