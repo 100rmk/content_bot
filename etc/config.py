@@ -25,7 +25,7 @@ class Config:
     app_port: str = os.getenv('WEBAPP_PORT')
     # db
     db_url = os.getenv('DB_URL')
-    cache_url = os.getenv('CACHE_URL') + '/' + bot_name
+    cache_url = os.getenv('CACHE_URL') + bot_name
 
     # services
     class Instagram:
