@@ -33,7 +33,7 @@
             pull: yes
             network_mode: host
             env:
-              BOT_NAME: "{{ BOT_NAME }}"
+              BOT_NAME: "{{ BOT_NAME | lower }}"
               WATERMARK_TEXT: "{{ WATERMARK_TEXT }}"
 
               API_TOKEN: "{{ BOT_TOKEN }}"
