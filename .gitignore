@@ -3,7 +3,7 @@ venv
 .idea
 __pycache__/
 test.py
-tmp/.
 *.DS_store
-tmp/*
+tmp/*.mp4
+tmp/*.jpg
 .env
