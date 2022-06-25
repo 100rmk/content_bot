@@ -4,6 +4,11 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - name: set lower case bot_name
+        run: |
+          echo "BOT_NAME_LOWER=${BOT_NAME_LC,,}" >>${GITHUB_ENV}
+        env:
+          BOT_NAME_LC: '${{ secrets.BOT_NAME }}'
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set up Docker Buildx
@@ -18,4 +23,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ secrets.BOT_NAME }}:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.BOT_NAME_LOWER }}:latest
