@@ -3,6 +3,7 @@ from typing import Literal, Tuple, Optional
 import orjson
 
 from db.BaseModel import BaseDB, AsyncBaseCache
+from etc.config import Config
 
 
 async def add_reaction(
@@ -25,18 +26,18 @@ async def add_reaction(
         main_reaction.remove(user_id)
 
     await cache.set(
-        key=f'post_id:{post_id}',
+        key=f'{Config.bot_name}:post_id:{post_id}',
         value=orjson.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
     )
     return len(main_reaction), len(secondary_reaction)
 
 
 async def check_cached_post(*, message_id: int, db: BaseDB, cache: AsyncBaseCache) -> Optional[dict]:
-    if not (cached_reactions := await cache.get(key=f'post_id:{message_id}')):
+    if not (cached_reactions := await cache.get(key=f'{Config.bot_name}:post_id:{message_id}')):
         post = db.get_post(message_id=message_id)
         if post:
             await cache.set(
-                key=f'post_id:{message_id}',
+                key=f'{Config.bot_name}:post_id:{message_id}',
                 value=orjson.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
             )
             return post
