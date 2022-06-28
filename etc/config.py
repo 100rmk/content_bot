@@ -1,5 +1,5 @@
 import os
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from dotenv import load_dotenv
 
@@ -17,8 +17,9 @@ class Config:
     suggest_group_id: str = os.getenv('SUGG_ID')
     recipient_chat_id: str = os.getenv('CHANNEL_ID')
     root_id: int = int(os.getenv('ADMIN_ID'))
-    admins: Tuple[int] = (root_id,)
-    moderators: Tuple[int] = (root_id,)
+    admins: List[int] = [root_id, ]
+    moderators: List[Optional[int]] = [root_id, ]
+    subscribers: List[Optional[int]] = [root_id, ]
     post_count_in_week = os.getenv('POST_COUNT_IN_WEEK', 25)
     # application
     app_host: str = os.getenv('WEBAPP_HOST')
@@ -31,6 +32,25 @@ class Config:
     class Instagram:
         login: Optional[str] = os.getenv('INST_LOGIN')
         password: Optional[str] = os.getenv('INST_PASS')
+
+
+class Commands:
+    default: List[Tuple[str, str]] = []
+    subscribers: List[Tuple[str, str]] = []
+    moderators: List[Tuple[str, str]] = []
+    admins: List[Tuple[str, str]] = []
+
+    @classmethod
+    def init_roles(cls):
+        cls.subscribers += cls.default
+        cls.moderators += cls.subscribers
+        cls.admins += cls.moderators
+
+    @classmethod
+    def get_commands(cls, role: str):
+        return '\n'.join(
+            f'{command}: {description}' for command, description in cls.__dict__[role]
+        )
 
 
 sugg_post_description = f'Прислали через @{Config.bot_name}'

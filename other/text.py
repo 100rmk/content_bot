@@ -22,6 +22,7 @@ INFO = '''
     '''
 NOT_FOUND = 'не найден'
 UNBANNED = 'разбанен'
+EMPTY = 'ничего не введено'
 SEND_THE_LINK = 'Отправьте ссылку на рекламу'
 
 # content.py

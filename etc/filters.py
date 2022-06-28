@@ -21,7 +21,7 @@ class NicknameFilter(BoundFilter):
         self.has_nickname = has_nickname
 
     async def check(self, message: types.Message):
-        return (message.from_user.username != None) == self.has_nickname
+        return (message.from_user.username is not None) == self.has_nickname
 
 
 class ModerFilter(BoundFilter):

@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 
 from db.fsm import GroupState
+from etc.config import Commands
 
 
 def register_handlers(dispatcher: Dispatcher):
@@ -10,11 +11,20 @@ def register_handlers(dispatcher: Dispatcher):
 
 
 def _commands(dispatcher: Dispatcher):
-    from handlers.commands import start, unban, info, advertisement
+    from handlers.commands import start, unban, info, advertisement, help_
     dispatcher.register_message_handler(start, commands=['start'])
+    Commands.default.append(('/start', start.__doc__))
     dispatcher.register_message_handler(info, commands=['info'])
+    Commands.default.append(('/info', info.__doc__))
+    dispatcher.register_message_handler(help_, commands=['help'])
+    Commands.default.append(('/help', help_.__doc__))
+
     dispatcher.register_message_handler(unban, commands=['unban'], is_admin=True)
+    Commands.admins.append(('/unban', unban.__doc__))
     dispatcher.register_message_handler(advertisement, commands=['ad'], is_admin=True)
+    Commands.admins.append(('/ad', advertisement.__doc__))
+
+    Commands.init_roles()
 
 
 def _content(dispatcher):
