@@ -61,7 +61,7 @@ async def video_post(message: types.Message):
         )
         return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} vidos zaletel')  # TODO: вынести в декоратор
     except Exception as e:
-        return SendMessage(chat_id=message.chat.id, text=str(e))
+        return SendMessage(chat_id=message.chat.id, text=str(e) or 'message is empty')
 
 
 async def img_post(message: types.Message):
