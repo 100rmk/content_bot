@@ -6,7 +6,7 @@
       block:
         - name: Remove docker container
           docker_container:
-            name: '{{ BOT_NAME | lower }}'
+            name: "{{ BOT_NAME | lower }}"
             state: absent
 
         - name: Remove docker image
@@ -20,14 +20,14 @@
       block:
         - name: Docker login
           docker_login:
-            email: '{{ EMAIL }}'
+            email: "{{ EMAIL }}"
             username: "{{ DOCKER_USERNAME }}"
             password: "{{ DOCKER_PASSWORD }}"
 
         - name: Запуск контейнера
           docker_container:
-            name: '{{ BOT_NAME | lower }}'
-            image: '{{ DOCKER_USERNAME }}/{{ BOT_NAME | lower }}:latest'
+            name: "{{ BOT_NAME | lower }}"
+            image: "{{ DOCKER_USERNAME }}/{{ BOT_NAME | lower }}:latest"
             restart_policy: unless-stopped
             state: started
             pull: yes
@@ -40,6 +40,7 @@
               ADMIN_ID: "{{ ADMIN_ID }}"
               CHANNEL_ID: "{{ CHANNEL_ID }}"
               SUGG_ID: "{{ SUGG_ID }}"
+              SUB_ID: "{{ SUB_ID }}"
 
               DB_URL: "{{ DB_URL }}"
               CACHE_URL: "{{ CACHE_URL }}"

@@ -45,6 +45,14 @@ async def video_post(message: types.Message):
     video = message.video or message.animation
     wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
+        if Config.subscriber_group_id:
+            await bot.copy_message(
+                chat_id=Config.subscriber_group_id,
+                from_chat_id=message.chat.id,
+                message_id=message.message_id,
+                caption=message.caption
+            )
+
         uploaded = await upload_video(video=video, watermark_text=Config.watermark_text)
         await bot.delete_message(message.chat.id, wait_message.message_id)
         response = await bot.send_video(
@@ -68,6 +76,14 @@ async def img_post(message: types.Message):
     img = message.photo
     wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
     try:
+        if Config.subscriber_group_id:
+            await bot.copy_message(
+                chat_id=Config.subscriber_group_id,
+                from_chat_id=message.chat.id,
+                message_id=message.message_id,
+                caption=message.caption
+            )
+
         uploaded = await upload_img(img=img, watermark_text=Config.watermark_text)
         await bot.delete_message(message.chat.id, wait_message.message_id)
         response = await bot.send_photo(

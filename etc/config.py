@@ -16,6 +16,7 @@ class Config:
     # bot config
     suggest_group_id: str = os.getenv('SUGG_ID')
     recipient_chat_id: str = os.getenv('CHANNEL_ID')
+    subscriber_group_id: str = os.getenv('SUB_ID')
     root_id: int = int(os.getenv('ADMIN_ID'))
     admins: List[int] = [root_id, ]
     moderators: List[Optional[int]] = [root_id, ]

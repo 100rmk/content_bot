@@ -100,6 +100,13 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
     await bot.answer_callback_query(callback_query.id, text=text.POST_SOON)
     file_id: int
     try:
+        if Config.subscriber_group_id:
+            await bot.copy_message(
+                chat_id=Config.subscriber_group_id,
+                from_chat_id=message.chat.id,
+                message_id=message.message_id
+            )
+
         meta = message.caption.split('|')
         username = meta[0]
         user_id = meta[1]
