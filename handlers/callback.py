@@ -104,7 +104,8 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
             await bot.copy_message(
                 chat_id=Config.subscriber_group_id,
                 from_chat_id=message.chat.id,
-                message_id=message.message_id
+                message_id=message.message_id,
+                caption=''
             )
 
         meta = message.caption.split('|')
