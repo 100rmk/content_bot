@@ -59,7 +59,9 @@ async def video_post(message: types.Message):
             chat_id=Config.recipient_chat_id,
             video=uploaded,
             caption=message.caption,
-            reply_markup=Buttons.reaction
+            reply_markup=Buttons.reaction,
+            height=video.height,
+            width=video.width,
         )
         db.insert_post(
             file_id=video.file_id,

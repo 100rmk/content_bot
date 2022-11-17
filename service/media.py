@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import os
 
@@ -15,7 +16,8 @@ async def upload_img(*, img, watermark_text: str):
     if os.path.isfile(tmp_img):
         os.remove(tmp_img)
 
-    _img_convert(link=file_link, tmp_file=tmp_img, watermark_text=watermark_text)
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _img_convert, file_link, tmp_img, watermark_text)
     return types.InputFile(tmp_img)
 
 
@@ -27,11 +29,12 @@ async def upload_video(*, video, watermark_text: str):
     if os.path.isfile(tmp_vid):
         os.remove(tmp_vid)
 
-    _video_convert(link=file_link, tmp_file=tmp_vid, watermark_text=watermark_text)
+    loop = asyncio.get_event_loop()
+    await loop.run_in_executor(None, _video_convert, file_link, tmp_vid, watermark_text)
     return types.InputFile(tmp_vid)
 
 
-def _video_convert(*, link: str, tmp_file: str, watermark_text: str):
+def _video_convert(link: str, tmp_file: str, watermark_text: str):
     logging.info('ffmpeg starts converting video')
     try:
         in_file = ffmpeg.input(link)
@@ -60,7 +63,7 @@ def _video_convert(*, link: str, tmp_file: str, watermark_text: str):
         raise FfmpegException from e
 
 
-def _img_convert(*, link: str, tmp_file: str, watermark_text: str):
+def _img_convert(link: str, tmp_file: str, watermark_text: str):
     logging.info('ffmpeg starts converting photo')
     try:
         in_file = ffmpeg.input(link)

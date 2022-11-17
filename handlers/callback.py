@@ -127,7 +127,9 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
                 chat_id=Config.recipient_chat_id,
                 video=tg_upload,
                 caption=sugg_post_description,
-                reply_markup=Buttons.reaction
+                reply_markup=Buttons.reaction,
+                height=video.height,
+                width=video.width,
             )
             db.insert_post(file_id=video.file_id, id_=response.message_id, username=username, user_id=user_id)
 
