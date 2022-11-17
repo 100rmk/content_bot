@@ -49,8 +49,5 @@
               WEBAPP_PORT: "{{ WEBAPP_PORT }}"
               WEBHOOK_URL: "{{ WEBHOOK_URL }}"
 
-              INST_LOGIN: "{{ INST_LOGIN | default('')}}"
-              INST_PASS: "{{ INST_PASS | default('')}}"
-
       become: yes
       become_user: root

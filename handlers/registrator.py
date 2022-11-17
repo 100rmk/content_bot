@@ -28,7 +28,7 @@ def _commands(dispatcher: Dispatcher):
 
 
 def _content(dispatcher):
-    from handlers.content import suggest_posts, video_post, img_post, ad_link, ad_post, instagram_post
+    from handlers.content import suggest_posts, video_post, img_post, ad_link, ad_post
     dispatcher.register_message_handler(
         suggest_posts,
         content_types=[types.ContentType.VIDEO, types.ContentType.PHOTO],
@@ -48,13 +48,6 @@ def _content(dispatcher):
         state=GroupState.advertising_inline,
         content_types=types.ContentType.ANY,
         is_admin=True,
-    )
-    dispatcher.register_message_handler(
-        instagram_post,
-        content_types=types.ContentType.TEXT,
-        regexp=r'(?:(?:http|https):\/\/)?(?:www.)?(?:instagram.com|instagr.am|instagr.com)\/(\w+)',
-        is_moder=True,
-        run_task=True,
     )
 
 

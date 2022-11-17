@@ -29,11 +29,6 @@ class Config:
     db_url = os.getenv('DB_URL')
     cache_url = os.getenv('CACHE_URL') + bot_name
 
-    # services
-    class Instagram:
-        login: Optional[str] = os.getenv('INST_LOGIN')
-        password: Optional[str] = os.getenv('INST_PASS')
-
 
 class Commands:
     default: List[Tuple[str, str]] = []

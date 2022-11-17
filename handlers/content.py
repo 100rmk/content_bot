@@ -5,17 +5,14 @@ from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import SendMessage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from instaloader import Post
 
 from db.fsm import GroupState
 from etc.config import Config
 from etc.telegram import Buttons
-from main import bot, db, instagram
+from main import bot, db
 from other import text
 from service.media import upload_video, upload_img
 from utils.utils import get_content_bytes
-
-inst_url = re.compile(r'^(?:https?:\/\/)?(?:www\.)?(?:instagram\.com.*\/*\/)([\d\w\-_]+)(?:\/)?(\?.*)?$')
 
 
 # Предложка
@@ -132,35 +129,3 @@ async def ad_post(message: types.Message, state: FSMContext):
     except Exception as e:
         await state.finish()
         return SendMessage(chat_id=message.chat.id, text=str(e))
-
-
-async def instagram_post(message: types.Message):
-    try:
-        code = re.search(
-            pattern=inst_url,
-            string=message.text
-        ).group(1)
-        post = Post.from_shortcode(context=instagram.context, shortcode=code)
-
-        count = 0
-        is_video_tuple = post.get_is_videos()
-        if len(is_video_tuple) > 1:
-            for sidecar in post.get_sidecar_nodes():
-                dataset = get_content_bytes(sidecar.video_url if is_video_tuple[count] else sidecar.display_url)
-                tg_upload = types.InputFile(dataset)
-                if is_video_tuple[count]:
-                    await bot.send_video(message.chat.id, tg_upload)
-                else:
-                    await bot.send_photo(message.chat.id, tg_upload)
-                count += 1
-
-        elif len(is_video_tuple) == 1:
-            dataset = get_content_bytes(post.video_url if post.is_video else post.url)
-            tg_upload = types.InputFile(dataset)
-            if post.is_video:
-                await bot.send_video(message.chat.id, tg_upload)
-            else:
-                await bot.send_photo(message.chat.id, tg_upload)
-
-    except Exception as e:
-        return SendMessage(chat_id=message.chat.id, text=f'Не получилось \n {str(e)}')

@@ -11,7 +11,6 @@ from db.redis import AsyncRedisCache
 from etc.config import Config
 from etc.filters import AdminFilter, NicknameFilter, ModerFilter
 from handlers.registrator import register_handlers
-from service.instagram import Instagram
 from service.schedule_tasks import update_users_sugg_count, upload_cache_db
 from utils.utils import check_config
 
@@ -23,7 +22,6 @@ dp = Dispatcher(bot, storage=storage)
 logging.basicConfig(level=logging.INFO)
 db = MongoDB(mongo_url=Config.db_url, bot_name=Config.bot_name)
 cache = AsyncRedisCache(url=Config.cache_url)
-instagram = Instagram(username=Config.Instagram.login, password=Config.Instagram.password).login()
 any(dp.filters_factory.bind(filter_) for filter_ in (AdminFilter, NicknameFilter, ModerFilter))
 
 
