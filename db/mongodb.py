@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 
 import pymongo
@@ -25,7 +25,7 @@ class MongoDB(BaseDB):
             'user_id': user_id,
             'likes': [],
             'dislikes': [],
-            'timestamp': datetime.now()
+            'timestamp': datetime.now() + timedelta(Config.tz)
         }
         self._db_posts.insert_one(post)
 
