@@ -120,7 +120,13 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
                 caption=sugg_post_description,
                 reply_markup=Buttons.reaction
             )
-            db.insert_post(file_id=photo[-1].file_id, id_=response.message_id, username=username, user_id=user_id)
+            db.insert_post(
+                file_id=photo[-1].file_id,
+                id_=response.message_id,
+                username=username,
+                user_id=user_id,
+                content_type='photo'
+            )
         if video := message.video:
             tg_upload = await upload_video(video=video, watermark_text=Config.watermark_text)
             response = await bot.send_video(
@@ -131,7 +137,13 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
                 height=video.height,
                 width=video.width,
             )
-            db.insert_post(file_id=video.file_id, id_=response.message_id, username=username, user_id=user_id)
+            db.insert_post(
+                file_id=video.file_id,
+                id_=response.message_id,
+                username=username,
+                user_id=user_id,
+                content_type='video'
+            )
 
         await remove_sugg_post(callback_query)
     except Exception:

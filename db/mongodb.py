@@ -17,7 +17,7 @@ class MongoDB(BaseDB):
     def get_post(self, *, message_id: int):
         return self._db_posts.find_one({'_id': message_id})
 
-    def insert_post(self, *, file_id: int, id_: int, username: str, user_id: Union[int, str]):
+    def insert_post(self, *, file_id: int, id_: int, username: str, user_id: Union[int, str], content_type: str):
         post = {
             '_id': id_,
             'file_id': file_id,
@@ -25,6 +25,7 @@ class MongoDB(BaseDB):
             'user_id': user_id,
             'likes': [],
             'dislikes': [],
+            'content_type': content_type,
             'timestamp': datetime.now() + timedelta(hours=Config.tz)
         }
         self._db_posts.insert_one(post)

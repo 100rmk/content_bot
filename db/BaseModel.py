@@ -8,7 +8,7 @@ class BaseDB(ABC):
         pass
 
     @abstractmethod
-    def insert_post(self, *, file_id: int, id_: int, username: str, user_id: Union[int, str]):
+    def insert_post(self, *, file_id: int, id_: int, username: str, user_id: Union[int, str], content_type: str):
         pass
 
     @abstractmethod

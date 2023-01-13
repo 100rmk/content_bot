@@ -64,7 +64,8 @@ async def video_post(message: types.Message):
             file_id=video.file_id,
             id_=response.message_id,
             username=message.from_user.username,
-            user_id=message.from_user.id
+            user_id=message.from_user.id,
+            content_type='photo'
         )
         return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} vidos zaletel')  # TODO: вынести в декоратор
     except Exception as e:
@@ -95,7 +96,8 @@ async def img_post(message: types.Message):
             file_id=img[-1].file_id,
             id_=response.message_id,
             username=message.from_user.username,
-            user_id=message.from_user.id
+            user_id=message.from_user.id,
+            content_type='photo'
         )
 
         return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} img zaletel')  # TODO: исправить логирование
