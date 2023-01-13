@@ -25,7 +25,7 @@ class MongoDB(BaseDB):
             'user_id': user_id,
             'likes': [],
             'dislikes': [],
-            'timestamp': datetime.now() + timedelta(Config.tz)
+            'timestamp': datetime.now() + timedelta(hours=Config.tz)
         }
         self._db_posts.insert_one(post)
 
