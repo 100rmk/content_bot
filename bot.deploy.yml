@@ -2,7 +2,19 @@
   hosts: localhost
   any_errors_fatal: true
   tasks:
-    - name: Remove
+    - name: Install PostgreSQL container
+      docker_container:
+        name: postgres
+        image: postgres:latest
+        state: started
+        ports:
+          - "5432:5432"
+        env:
+          POSTGRES_DB: "{{ DB_NAME }}"
+          POSTGRES_USER: "{{  }}"
+          POSTGRES_PASSWORD: password
+
+    - name: Remove old bot
       block:
         - name: Remove docker container
           docker_container:
@@ -16,7 +28,7 @@
       become: yes
       become_user: root
 
-    - name: Install
+    - name: Install bot
       block:
         - name: Docker login
           docker_login:

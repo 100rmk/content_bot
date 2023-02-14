@@ -1,7 +1,6 @@
 import logging
 
 import orjson
-from pymongo import UpdateOne
 
 from db.BaseModel import AsyncBaseCache, BaseDB
 from etc.config import Config
@@ -19,13 +18,13 @@ async def upload_cache_db(db: BaseDB, cache: AsyncBaseCache):
         logging.info(id_)
         reactions = await cache.get(key=f'{Config.bot_name}:post_id:{id_}')
         logging.info(reactions)
-        bulk.append(UpdateOne({'_id': int(id_)}, {'$set': orjson.loads(reactions)}), )
+        bulk.append({'id': int(id_), **orjson.loads(reactions)})
         await cache.delete(key=post_id)
         if len(bulk) == 500:
-            result = db.bulk_push_reactions(reactions=bulk)
-            logging.info(f'cache uploaded {result.bulk_api_result}')
+            db.bulk_push_reactions(reactions=bulk)
+            logging.info('cache uploaded')
             bulk.clear()
     if len(bulk) > 0:
-        result = db.bulk_push_reactions(reactions=bulk)
-        logging.info(f'cache uploaded {result.bulk_api_result}')
+        db.bulk_push_reactions(reactions=bulk)
+        logging.info('cache uploaded')
         bulk.clear()

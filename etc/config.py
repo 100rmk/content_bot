@@ -28,7 +28,7 @@ class Config:
     # db
     db_url = os.getenv('DB_URL')
     cache_url = os.getenv('CACHE_URL') + bot_name
-    tz = os.getenv('TZ', 3)
+    tz = int(os.getenv('TZ', 3))
 
 
 class Commands:

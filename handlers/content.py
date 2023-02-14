@@ -1,4 +1,3 @@
-import re
 from datetime import datetime
 
 from aiogram import types
@@ -12,16 +11,15 @@ from etc.telegram import Buttons
 from main import bot, db
 from other import text
 from service.media import upload_video, upload_img
-from utils.utils import get_content_bytes
 
 
 # Предложка
 async def suggest_posts(message: types.Message):
     db.add_user(user_id=message.from_user.id, username=message.from_user.username)
     user = db.get_user(user_id=message.from_user.id)
-    posts_count = user.get('sugg_post_count')
+    posts_count = user.get('suggestions_count')
 
-    if user.get('is_banned'):
+    if user.get('banned'):
         return SendMessage(chat_id=message.chat.id, text=text.MESSAGE_FOR_BANNED_USER)
     if posts_count == 0:
         return SendMessage(chat_id=message.chat.id, text=text.LIMIT_EXCEEDED)
