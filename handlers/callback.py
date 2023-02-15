@@ -2,8 +2,9 @@ import aiogram
 from aiogram import types
 from aiogram.dispatcher.webhook import AnswerCallbackQuery
 from aiogram.utils.exceptions import MessageCantBeDeleted, MessageNotModified
+from sentry_sdk import capture_exception
 
-from main import bot, db, cache
+from main import bot, db, cache, logger
 from etc.config import Config, sugg_post_description
 from etc.telegram import Buttons
 from other import text
@@ -40,6 +41,7 @@ async def callback_liking(callback_query: types.CallbackQuery):
 
         return
     except aiogram.utils.exceptions.InvalidQueryID as e:
+        capture_exception(e)
         return AnswerCallbackQuery(callback_query.id, cache_time=TG_CACHE_TIME, text=text.SMTH_WRONG)
 
 
@@ -71,7 +73,8 @@ async def callback_disliking(callback_query: types.CallbackQuery):
         )
 
         return
-    except aiogram.utils.exceptions.InvalidQueryID:
+    except aiogram.utils.exceptions.InvalidQueryID as e:
+        capture_exception(e)
         return AnswerCallbackQuery(callback_query.id, cache_time=TG_CACHE_TIME, text=text.SMTH_WRONG)
 
 
@@ -90,6 +93,7 @@ async def remove_sugg_post(callback_query: types.CallbackQuery):
     try:
         await bot.delete_message(Config.suggest_group_id, message_id)
     except MessageCantBeDeleted as e:
+        logger.info(e)
         return AnswerCallbackQuery(callback_query.id, text=text.DELETE_FAIL)
     return AnswerCallbackQuery(callback_query.id, text=text.DELETED)
 
@@ -146,7 +150,8 @@ async def post_sugg_content(callback_query: types.CallbackQuery):
             )
 
         await remove_sugg_post(callback_query)
-    except Exception:
+    except (ValueError, Exception) as e:
+        capture_exception(e)
         return AnswerCallbackQuery(callback_query.id, text=text.POST_FAIL)
 
 
@@ -159,4 +164,4 @@ async def edit_reply_markup(inline_kb_full, message_id):
             reply_markup=inline_kb_full
         )
     except MessageNotModified:
-        pass
+        logger.info('MessageNotModified, message_id: %d' % message_id)

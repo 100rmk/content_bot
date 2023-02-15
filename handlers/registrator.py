@@ -11,13 +11,13 @@ def register_handlers(dispatcher: Dispatcher):
 
 
 def _commands(dispatcher: Dispatcher):
-    from handlers.commands import start, unban, info, advertisement, help_
+    from handlers.commands import start, unban, info, advertisement, commands
     dispatcher.register_message_handler(start, commands=['start'])
     Commands.default.append(('/start', start.__doc__))
     dispatcher.register_message_handler(info, commands=['info'])
     Commands.default.append(('/info', info.__doc__))
-    dispatcher.register_message_handler(help_, commands=['help'])
-    Commands.default.append(('/help', help_.__doc__))
+    dispatcher.register_message_handler(commands, commands=['commands'])
+    Commands.default.append(('/commands', commands.__doc__))
 
     dispatcher.register_message_handler(unban, commands=['unban'], is_admin=True)
     Commands.admins.append(('/unban', unban.__doc__))

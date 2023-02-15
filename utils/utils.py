@@ -1,5 +1,7 @@
 import io
+import logging
 import urllib.request
+from logging import Handler
 
 from etc.exceptions import ConfigError
 
@@ -16,3 +18,9 @@ def check_config(config: object):
         if not key.startswith('__'):
             if not value:
                 raise ConfigError(f'Missed config parameter {key}')
+
+def init_logger(name: str, level: int, handler: Handler):
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.addHandler(handler)
+    return logger

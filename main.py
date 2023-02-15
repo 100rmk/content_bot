@@ -1,17 +1,19 @@
 import logging
 
 import aiocron
+import sentry_sdk
 from aiogram import Bot
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import Dispatcher
 from aiogram.utils.executor import start_webhook
+from sentry_sdk.integrations.logging import SentryHandler
 
 from db.postgres import PostgresDB
 from db.redis import AsyncRedisCache
 from etc import FILTERS, Config
 from handlers.registrator import register_handlers
 from service.schedule_tasks import update_users_sugg_count, upload_cache_db
-from utils.utils import check_config
+from utils.utils import check_config, init_logger
 
 check_config(Config)
 
@@ -22,10 +24,15 @@ logging.basicConfig(level=logging.INFO)
 db = PostgresDB(pg_url=Config.db_url)
 cache = AsyncRedisCache(url=Config.cache_url)
 any(dp.filters_factory.bind(filter_) for filter_ in FILTERS)
+sentry_sdk.init(dsn=Config.sentry_dsn, traces_sample_rate=1.0)
+sentry_logger = init_logger('sentry_logger', logging.ERROR, SentryHandler())
+logger = init_logger('app_logger', logging.INFO, logging.StreamHandler())
 
 
 async def on_startup(dp):
     await bot.set_webhook(Config.webhook_url)
+    import os
+    os.environ['TZ'] = 'Europe/Moscow'
     aiocron.crontab('0 0 * * FRI', update_users_sugg_count, args=(db,))  # every 00:00 on Friday
     aiocron.crontab('*/20 * * * *', upload_cache_db, args=(db, cache))  # every 20 minutes
 

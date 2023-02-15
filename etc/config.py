@@ -29,6 +29,8 @@ class Config:
     db_url = os.getenv('DB_URL')
     cache_url = os.getenv('CACHE_URL') + bot_name
     tz = int(os.getenv('TZ', 3))
+    # logger
+    sentry_dsn = os.getenv('SENTRY_DSN')
 
 
 class Commands:
@@ -45,9 +47,7 @@ class Commands:
 
     @classmethod
     def get_commands(cls, role: str):
-        return '\n'.join(
-            f'{command}: {description}' for command, description in cls.__dict__[role]
-        )
+        return '\n'.join(f'{command}: {description}' for command, description in cls.__dict__[role])
 
 
 sugg_post_description = f'Прислали через @{Config.bot_name}'

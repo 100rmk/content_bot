@@ -1,9 +1,8 @@
-from datetime import datetime
-
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.webhook import SendMessage
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from sentry_sdk import capture_exception
 
 from db.fsm import GroupState
 from etc.config import Config
@@ -38,7 +37,7 @@ async def suggest_posts(message: types.Message):
 
 async def video_post(message: types.Message):
     video = message.video or message.animation
-    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
+    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)
     try:
         if Config.subscriber_group_id:
             await bot.copy_message(
@@ -65,14 +64,15 @@ async def video_post(message: types.Message):
             user_id=message.from_user.id,
             content_type='video'
         )
-        return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} vidos zaletel')  # TODO: вынести в декоратор
-    except Exception as e:
-        return SendMessage(chat_id=message.chat.id, text=str(e) or 'message is empty')
+        return SendMessage(chat_id=message.chat.id, text='vidos zaletel')
+    except (ValueError, Exception) as e:
+        capture_exception(e)
+        return SendMessage(chat_id=message.chat.id, text='something going wrong, look stacktrace')
 
 
 async def img_post(message: types.Message):
     img = message.photo
-    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)  # TODO: вынести в декоратор
+    wait_message = await bot.send_message(message.chat.id, text.PROCESSING)
     try:
         if Config.subscriber_group_id:
             await bot.copy_message(
@@ -98,9 +98,10 @@ async def img_post(message: types.Message):
             content_type='photo'
         )
 
-        return SendMessage(chat_id=message.chat.id, text=f'{datetime.now()} img zaletel')  # TODO: исправить логирование
-    except Exception as e:
-        return SendMessage(chat_id=message.chat.id, text=str(e))
+        return SendMessage(chat_id=message.chat.id, text='img zaletel')
+    except (ValueError, Exception) as e:
+        capture_exception(e)
+        return SendMessage(chat_id=message.chat.id, text='something going wrong, look stacktrace')
 
 
 async def ad_link(message: types.Message, state: FSMContext):  # TODO: проверку на ссылку
@@ -126,6 +127,7 @@ async def ad_post(message: types.Message, state: FSMContext):
         )
         await state.finish()
         return SendMessage(chat_id=message.chat.id, text=text.AD_POST_SENT)
-    except Exception as e:
+    except (ValueError, Exception) as e:
         await state.finish()
-        return SendMessage(chat_id=message.chat.id, text=str(e))
+        capture_exception(e)
+        return SendMessage(chat_id=message.chat.id, text='something going wrong, look stacktrace')

@@ -4,8 +4,8 @@ import os
 
 import ffmpeg
 from aiogram import types
+from sentry_sdk import capture_exception
 
-from etc.exceptions import FfmpegException
 from main import bot
 
 
@@ -16,7 +16,7 @@ async def upload_img(*, img, watermark_text: str):
     if os.path.isfile(tmp_img):
         os.remove(tmp_img)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, _img_convert, file_link, tmp_img, watermark_text)
     return types.InputFile(tmp_img)
 
@@ -29,7 +29,7 @@ async def upload_video(*, video, watermark_text: str):
     if os.path.isfile(tmp_vid):
         os.remove(tmp_vid)
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     await loop.run_in_executor(None, _video_convert, file_link, tmp_vid, watermark_text)
     return types.InputFile(tmp_vid)
 
@@ -60,7 +60,7 @@ def _video_convert(link: str, tmp_file: str, watermark_text: str):
         ).output(tmp_file, map=audio).run(quiet=True)
         logging.info('video  converting  complete')
     except Exception as e:
-        raise FfmpegException from e
+        capture_exception(e)
 
 
 def _img_convert(link: str, tmp_file: str, watermark_text: str):
@@ -81,4 +81,4 @@ def _img_convert(link: str, tmp_file: str, watermark_text: str):
         ).output(tmp_file).run(quiet=True)
         logging.info('photo converting  complete')
     except Exception as e:
-        raise FfmpegException from e
+        capture_exception(e)
