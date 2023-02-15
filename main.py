@@ -31,8 +31,6 @@ logger = init_logger('app_logger', logging.INFO, logging.StreamHandler())
 
 async def on_startup(dp):
     await bot.set_webhook(Config.webhook_url)
-    import os
-    os.environ['TZ'] = 'Europe/Moscow'
     aiocron.crontab('0 0 * * FRI', update_users_sugg_count, args=(db,))  # every 00:00 on Friday
     aiocron.crontab('*/20 * * * *', upload_cache_db, args=(db, cache))  # every 20 minutes
 
