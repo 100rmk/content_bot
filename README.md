@@ -17,4 +17,4 @@
 5. ~~Рейтинг постов на основе лайков (отдельный сервис на go)~~ [link](https://github.com/hinesqui/memePage)
 6. ...
 
-#### Стэк: python, aiogram, mongodb, redis, ansible, github actions, ffmpeg
+#### Стэк: python, aiogram, ~~mongodb~~(postgresql, sqlalchemy), redis, ansible, github actions, ffmpeg
