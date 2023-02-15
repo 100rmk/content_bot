@@ -7,12 +7,14 @@
         name: postgres
         image: postgres:latest
         state: started
+        restart_policy: always
+        network_mode: host
         ports:
           - "5432:5432"
         env:
           POSTGRES_DB: "{{ DB_NAME }}"
-          POSTGRES_USER: "{{  }}"
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: "{{ DB_USER }}"
+          POSTGRES_PASSWORD: "{{ DB_PASSWORD }}"
 
     - name: Remove old bot
       block:
@@ -40,7 +42,7 @@
           docker_container:
             name: "{{ BOT_NAME | lower }}"
             image: "{{ DOCKER_USERNAME }}/{{ BOT_NAME | lower }}:latest"
-            restart_policy: unless-stopped
+            restart_policy: always
             state: started
             pull: yes
             network_mode: host
