@@ -41,6 +41,7 @@ RUN apk add --update --no-cache \
         libtheora libvpx \
     && rm -rf /var/cache/apk/*
 # fix "TypeError: duplicate base class TimeoutError" exception in aioredis 2.0.1(latest) lib for python 3.11.2
+# TODO: aioredis is in archive, replace with redis
 RUN sed -i 's/class TimeoutError(asyncio.TimeoutError, builtins.TimeoutError, RedisError):/class TimeoutError(asyncio.TimeoutError, RedisError):/g' /usr/local/lib/python3.11/site-packages/aioredis/exceptions.py
 
 CMD [ "python", "./main.py" ]
