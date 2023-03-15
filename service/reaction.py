@@ -1,6 +1,5 @@
+import json
 from typing import Literal, Tuple, Optional
-
-import orjson
 
 from db.BaseModel import BaseDB, AsyncBaseCache
 from etc.config import Config
@@ -27,7 +26,7 @@ async def add_reaction(
 
     await cache.set(
         key=f'{Config.bot_name}:post_id:{post_id}',
-        value=orjson.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
+        value=json.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
     )
     return len(main_reaction), len(secondary_reaction)
 
@@ -38,10 +37,10 @@ async def check_cached_post(*, message_id: int, db: BaseDB, cache: AsyncBaseCach
         if post:
             await cache.set(
                 key=f'{Config.bot_name}:post_id:{message_id}',
-                value=orjson.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
+                value=json.dumps({'likes': post['likes'], 'dislikes': post['dislikes']})
             )
             return post
         else:
             return None
     else:
-        return orjson.loads(cached_reactions)
+        return json.loads(cached_reactions)

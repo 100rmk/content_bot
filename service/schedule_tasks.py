@@ -1,6 +1,6 @@
+import json
 import logging
 
-import orjson
 from sentry_sdk import capture_exception
 
 from db.BaseModel import AsyncBaseCache, BaseDB
@@ -20,7 +20,7 @@ async def upload_cache_db(db: BaseDB, cache: AsyncBaseCache):
             logging.info(id_)
             reactions = await cache.get(key=f'{Config.bot_name}:post_id:{id_}')
             logging.info(reactions)
-            bulk.append({'id': int(id_), **orjson.loads(reactions)})
+            bulk.append({'id': int(id_), **json.loads(reactions)})
             await cache.delete(key=post_id)
             if len(bulk) == 500:
                 db.bulk_push_reactions(reactions=bulk)

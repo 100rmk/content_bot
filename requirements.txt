@@ -2,7 +2,6 @@ aiogram==2.20
 pymongo==3.11.4
 requests==2.26.0
 python-dotenv==0.20.0
-orjson==3.7.2
 aioredis==2.0.1
 aiocron==1.8
 ffmpeg-python==0.2.0
